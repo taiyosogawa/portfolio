@@ -1,8 +1,13 @@
 window.onload = function () {
+    var DISP_TIME = 650;
     var r = Raphael("container-div", window.innerWidth, window.innerHeight);
     var nodeState = {};
-    var follower = makeCircle(300, 300, 20,
+    var followElements = {};
+    followElements['baby'] = makeCircle(300, 300, 20,
         {fill: "red", stroke: "#fff", "stroke-width": 2});
+
+    var bigNode = makeCircle(window.innerWidth / 2, window.innerHeight / 2, 70,
+        {fill: "red", stroke: "#fff", "stroke-width": 2, "cursor":"pointer"});
     
     // Functions for dragging paths
     var start = function () {
@@ -10,7 +15,10 @@ window.onload = function () {
         this.ody = 0;
     },
     move = function (dx, dy) {
-        follower.translate(dx - this.odx, dy - this.ody);
+        for(f in followElements) {
+            followElements[f].translate(dx - this.odx, dy - this.ody);
+        }
+
         this.translate(dx - this.odx, dy - this.ody);
         this.odx = dx;
         this.ody = dy;
@@ -18,24 +26,43 @@ window.onload = function () {
     up = function () {
         this.x += this.odx;
         this.y += this.ody;
-    };
-    
-    var bigNode = makeCircle(window.innerWidth / 2, window.innerHeight / 2, 70,
-        {fill: "red", stroke: "#fff", "stroke-width": 2, "cursor":"pointer"});
-    bigNode.drag(move, start, up);
+        for(f in followElements) {
+            followElements[f].x += this.odx;
+            followElements[f].y += this.ody;
+        }
 
-    bigNode.dblclick(function () {
+    },
+    selectProject = function () {
+        this.toFront();
         var newPath;
         if(+(nodeState[this] = !nodeState[this])){
             bigNode.undrag();
-            newPath = RRectPath(50 - this.x, 50 - this.y, window.innerWidth - 100, window.innerHeight - 100, 10, 10);
+            newPath = RRectPath(15 - this.x, 25 - this.y, window.innerWidth - 95, window.innerHeight - 50, 6, 6);
+            window.setTimeout(displayProject, DISP_TIME);
         } else {
             bigNode.drag(move, start, up);
             newPath = this.cpath;
+            window.setTimeout(bigNode.toFront, DISP_TIME);
         }
-        this.stop().animate({path: newPath}, 1000, 'easeIn');
+        this.stop().animate({path: newPath}, DISP_TIME, 'easeIn');
+    };
+    
+    bigNode.drag(move, start, up);
+    bigNode.dblclick(selectProject);
+    bigNode.hover(function () {
+        followElements['glow'] = this.glow();
+        followElements['glow'].x = this.x;
+        followElements['glow'].y = this.y;
+        r.add(glowElement);
+    }, function () {
+        followElements['glow'].remove();
     });
 
+    follower.click(selectProject);
+
+    function displayProject() {
+
+    }
 
     function makeCircle(x, y, rad, a) {
         var p = circlePath(rad);
@@ -85,12 +112,9 @@ window.onload = function () {
         f.translate(x, y);
     }
 
-
     var loop = function () {
-        //follower.translate(bigNode.x / 2, bigNode.y / 2);
         window.setTimeout(loop, 20);
     };
 
     loop();
-
 };
