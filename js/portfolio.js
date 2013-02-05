@@ -1,13 +1,24 @@
 window.onload = function () {
     var DISP_TIME = 650;
-    var r = Raphael("container-div", window.innerWidth, window.innerHeight);
+    var GREEN = '#53df00';
+    var BLUE = '#099'
+    var r = Raphael('container-div', window.innerWidth, window.innerHeight);
     var nodeState = {};
-    var followElements = {};
-    followElements['baby'] = makeCircle(300, 300, 20,
-        {fill: "red", stroke: "#fff", "stroke-width": 2});
+    var fElement = {};
+    var pElement = {};
+    fElement['baby'] = makeCircle(300, 300, 20, {
+        fill: BLUE,
+        opacity: .7,
+        stroke: '#fff',
+        'stroke-width': 1,
+        'cursor': 'pointer'});
 
-    var bigNode = makeCircle(window.innerWidth / 2, window.innerHeight / 2, 70,
-        {fill: "red", stroke: "#fff", "stroke-width": 2, "cursor":"pointer"});
+    var bigNode = makeCircle(window.innerWidth / 2, window.innerHeight / 2, 70, {
+        fill: GREEN,
+        opacity: .7,
+        stroke: '#fff',
+        'stroke-width': 1.5,
+        'cursor':'pointer'});
     
     // Functions for dragging paths
     var start = function () {
@@ -15,8 +26,8 @@ window.onload = function () {
         this.ody = 0;
     },
     move = function (dx, dy) {
-        for(f in followElements) {
-            followElements[f].translate(dx - this.odx, dy - this.ody);
+        for(f in fElement) {
+            fElement[f].translate(dx - this.odx, dy - this.ody);
         }
 
         this.translate(dx - this.odx, dy - this.ody);
@@ -26,22 +37,26 @@ window.onload = function () {
     up = function () {
         this.x += this.odx;
         this.y += this.ody;
-        for(f in followElements) {
-            followElements[f].x += this.odx;
-            followElements[f].y += this.ody;
+        for(f in fElement) {
+            fElement[f].x += this.odx;
+            fElement[f].y += this.ody;
         }
-
     },
     selectProject = function () {
         this.toFront();
         var newPath;
         if(+(nodeState[this] = !nodeState[this])){
             bigNode.undrag();
-            newPath = RRectPath(15 - this.x, 25 - this.y, window.innerWidth - 95, window.innerHeight - 50, 6, 6);
-            window.setTimeout(displayProject, DISP_TIME);
+            newPath = RRectPath(15 - this.x, 25 - this.y, window.innerWidth - 95, window.innerHeight - 50, 8, 8);
+            fElement['glow'].hide();
+            createProject();
+            
+
         } else {
             bigNode.drag(move, start, up);
             newPath = this.cpath;
+            removeProject();
+            window.setTimeout(fElement['glow'].hide(), DISP_TIME);
             window.setTimeout(bigNode.toFront, DISP_TIME);
         }
         this.stop().animate({path: newPath}, DISP_TIME, 'easeIn');
@@ -49,19 +64,53 @@ window.onload = function () {
     
     bigNode.drag(move, start, up);
     bigNode.dblclick(selectProject);
-    bigNode.hover(function () {
-        followElements['glow'] = this.glow();
-        followElements['glow'].x = this.x;
-        followElements['glow'].y = this.y;
+    bigNode.hover(glowOn, glowOff);
+
+    for(f in fElement){
+        fElement[f].click(selectProject);
+    }
+
+
+    function createProject() {
+        pElement['title'] = r.text(740, 80, 'Bus  Stop').attr({
+            'font-family': 'bebas',
+            'font-size': 72,
+            'text-anchor': 'start',
+            'fill': '#fff'
+        });
+        pElement['image-frame'] = r.rect(45, 50, 666, 495).attr({
+            'stroke-width': 4,
+            'stroke-linejoin': 'round',
+            'stroke': '#222'
+        });
+        pElement['image'] = r.image('img/bus_stop.png', 45, 50, 666, 495);
+        for(p in pElement) {
+            pElement[p].hide();
+        }
+        window.setTimeout(showProject, DISP_TIME);
+    }
+
+    function showProject() {
+        for(p in pElement) {
+            pElement[p].show();
+        }
+    }
+
+    function removeProject() {
+        for(p in pElement) {
+            pElement[p].remove();
+        }
+    }
+
+    function glowOn() {
+        fElement['glow'] = this.glow({'color': '#fff'});
+        fElement['glow'].x = this.x;
+        fElement['glow'].y = this.y;
         r.add(glowElement);
-    }, function () {
-        followElements['glow'].remove();
-    });
+    }
 
-    follower.click(selectProject);
-
-    function displayProject() {
-
+    function glowOff() {
+        fElement['glow'].remove();
     }
 
     function makeCircle(x, y, rad, a) {
