@@ -9,9 +9,6 @@
 
 
 
-
-
-
 oCanvas.domReady(function () {
 	
 	var canvas = oCanvas.create({
@@ -84,6 +81,26 @@ oCanvas.domReady(function () {
 	canvas.addChild(sketchingText);
 
 
+	var arc = canvas.display.arc({
+		x: 177,
+		y: 160,
+		radius: 80,
+		start: 110,
+		end: -10,
+		stroke: "10px #0aa"
+	});
+
+	canvas.addChild(arc);
+
+	arc.animate({
+		radius: 2000,
+		x: 1500,
+		y: 1500,
+		start: 110,
+		end: 110.001
+	},{
+		duration: "long"
+	});
 
 
 

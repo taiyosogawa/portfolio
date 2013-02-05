@@ -7,13 +7,12 @@
 </head>
 <body>
 
-    <div id="container-div">
-        <h1></h1>
-    </div>
+    <canvas id="canvas">
+    </canvas>
 
     <!-- Load all of the appropriate javascript -->
 
-    <script type="text/javascript" src="js/raphael.js"></script>
-    <script type="text/javascript" src="js/portfolio.js"></script>
+    <script type="text/javascript" src="js/ocanvas.js"></script>
+    <script type="text/javascript" src="js/portfolio-ocanvas.js"></script>
 </body>
 </html>

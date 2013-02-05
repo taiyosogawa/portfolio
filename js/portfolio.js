@@ -1,6 +1,8 @@
 window.onload = function () {
     var r = Raphael("container-div", window.innerWidth, window.innerHeight);
-    var follower = r.path(makeCircle(300, 300, 20)).attr({fill: "red", stroke: "#fff", "stroke-width": 2});
+    var nodeState = {};
+    var follower = makeCircle(300, 300, 20,
+        {fill: "red", stroke: "#fff", "stroke-width": 2});
     
     // Functions for dragging paths
     var start = function () {
@@ -8,42 +10,48 @@ window.onload = function () {
         this.ody = 0;
     },
     move = function (dx, dy) {
-        testfollow(follower, dx - this.odx, dy - this.ody);
+        follower.translate(dx - this.odx, dy - this.ody);
         this.translate(dx - this.odx, dy - this.ody);
         this.odx = dx;
         this.ody = dy;
     },
     up = function () {
-        this.totdx += this.odx;
-        this.totdy += this.ody;
+        this.x += this.odx;
+        this.y += this.ody;
     };
     
-    var bigNodePath = makeCircle(window.innerWidth / 2, window.innerHeight / 2, 70);
-    var bigNode = r.path(bigNodePath).attr({fill: "red", stroke: "#fff", "stroke-width": 2, "cursor":"pointer"});
-    initNode(bigNode);
-    var now = 1;
-
-
-    follow(follower, bigNode, 100, 100);
-
+    var bigNode = makeCircle(window.innerWidth / 2, window.innerHeight / 2, 70,
+        {fill: "red", stroke: "#fff", "stroke-width": 2, "cursor":"pointer"});
     bigNode.drag(move, start, up);
 
     bigNode.dblclick(function () {
-        rectPath = makeRoundedRect(50 - this.totdx, 50 - this.totdy, window.innerWidth - 100, window.innerHeight - 100, 10, 10);
-        var nodeToRect = [{path: rectPath}, {path: bigNodePath}];
-        this.stop().animate(nodeToRect[+(now = !now)], 1000, 'easeIn');
+        var newPath;
+        if(+(nodeState[this] = !nodeState[this])){
+            bigNode.undrag();
+            newPath = RRectPath(50 - this.x, 50 - this.y, window.innerWidth - 100, window.innerHeight - 100, 10, 10);
+        } else {
+            bigNode.drag(move, start, up);
+            newPath = this.cpath;
+        }
+        this.stop().animate({path: newPath}, 1000, 'easeIn');
     });
 
-    /**
-    * Returns the path of a circle
-    * @x {Number} x coord of center
-    * @y {Number} y coord of center
-    * @r {Number} radius
-    */
-    function makeCircle(x, y, r) {
+
+    function makeCircle(x, y, rad, a) {
+        var p = circlePath(rad);
+        var circle = r.path(p).attr(a);
+        circle.cpath = p;
+        circle.translate(x, y);
+        circle.x = x;
+        circle.y = y;
+        nodeState[circle] = 0;
+        return circle;
+    }
+
+    function circlePath(r) {
         var l = r / Math.sqrt(2);
         var s = r - l;
-        var string = 'M'+x+','+y;
+        var string = 'M 0, 0';
         string +='m 0,-'+r;
         string +='a '+r+','+r+' 0 0,1 '+l+','+s;
         string +='a '+r+','+r+' 0 0,1 '+s+','+l;
@@ -57,15 +65,7 @@ window.onload = function () {
         return string;
     }
 
-    /**
-    * Returns the path of a rounded rectangle
-    * @x {Number} x coord of upper left corner
-    * @y {Number} y coord of upper left corner
-    * @w {Number} width of rectangle
-    * @h {Number} height of rectangle
-    * @r {Number} radius of rounded corner
-    */
-    function makeRoundedRect(x, y, w, h, r) {
+    function RRectPath(x, y, w, h, r) {
         w = w - r;
         h = h - r;
         var string = 'M '+x+' '+y;
@@ -81,32 +81,14 @@ window.onload = function () {
         return string;
     }
 
-    function follow(f, c, x, y) {
-        var targetX = (c.getBBox().x2 + c.getBBox().x) / 2;
-        f.translate(1, 1);
-        /*
-        var r = f.getBBox().x2 - f.getBBox().x / 2;
-        var oldPath = makeCircle(f.getBBox().x + f.getBBox().x2 / 2, f.getBBox().y + f.getBBox().y2 / 2, r);
-        var dx = c.getBBox().x - f.getBBox().x;
-        var dy = c.getBBox().y - f.getBBox().y;
-        var newPath = makeCircle((dx - x) / 2, (dy - y) / 2, r);
-        f.stop().animate({oldPath: newPath}, 1000, 'easeIn');
-        */
-    }
-
-    function testfollow(f, x, y) {
+    function follow(f, x, y) {
         f.translate(x, y);
     }
 
-    function initNode(n) {
-        n.totdx = 0;
-        n.totdy = 0;
-    }
 
     var loop = function () {
-        follower.translate(1, 1);
-        console.log(bigNode.totdx);
-        window.setTimeout(loop, 10);
+        //follower.translate(bigNode.x / 2, bigNode.y / 2);
+        window.setTimeout(loop, 20);
     };
 
     loop();
