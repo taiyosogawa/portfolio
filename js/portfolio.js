@@ -6,19 +6,31 @@ window.onload = function () {
     var nodeState = {};
     var fElement = {};
     var pElement = {};
-    fElement['baby'] = makeCircle(300, 300, 20, {
-        fill: BLUE,
-        opacity: .7,
-        stroke: '#fff',
-        'stroke-width': 1,
-        'cursor': 'pointer'});
 
     var bigNode = makeCircle(window.innerWidth / 2, window.innerHeight / 2, 70, {
         fill: GREEN,
         opacity: .7,
         stroke: '#fff',
         'stroke-width': 1.5,
-        'cursor':'pointer'});
+        'cursor':'pointer'
+    });
+
+    fElement['baby'] = makeCircle(bigNode.x - 200, bigNode.y, 30, {
+        fill: 'url(img/bus_stop.png)',
+        opacity: .7,
+        stroke: '#fff',
+        'stroke-width': 1.2,
+        'cursor': 'pointer'
+    });
+
+    fElement['image'] = r.image('img/bus_stop.png', 10, 10, 800, 800).attr({
+        path: circlePath(40)});
+
+    console.log(fElement['image'].node.attributes);
+    fElement['image'].node.setAttribute('clip-path', 'url(#hex-mask)');
+
+
+
     
     // Functions for dragging paths
     var start = function () {
@@ -29,7 +41,6 @@ window.onload = function () {
         for(f in fElement) {
             fElement[f].translate(dx - this.odx, dy - this.ody);
         }
-
         this.translate(dx - this.odx, dy - this.ody);
         this.odx = dx;
         this.ody = dy;
@@ -59,7 +70,10 @@ window.onload = function () {
             window.setTimeout(fElement['glow'].hide(), DISP_TIME);
             window.setTimeout(bigNode.toFront, DISP_TIME);
         }
-        this.stop().animate({path: newPath}, DISP_TIME, 'easeIn');
+        this.stop().animate({
+            path: newPath,
+            fill: BLUE,
+            opacity: .9}, DISP_TIME, 'easeIn');
     };
     
     bigNode.drag(move, start, up);
@@ -68,6 +82,7 @@ window.onload = function () {
 
     for(f in fElement){
         fElement[f].click(selectProject);
+        fElement[f].hover(glowOn, glowOff);
     }
 
 
@@ -85,14 +100,14 @@ window.onload = function () {
         });
         pElement['image'] = r.image('img/bus_stop.png', 45, 50, 666, 495);
         for(p in pElement) {
-            pElement[p].hide();
+            pElement[p].attr({opacity: 0});
         }
         window.setTimeout(showProject, DISP_TIME);
     }
 
     function showProject() {
         for(p in pElement) {
-            pElement[p].show();
+            pElement[p].animate({opacity: 1}, DISP_TIME / 2, 'easeIn');
         }
     }
 
