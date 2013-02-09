@@ -11,19 +11,22 @@ window.onload = function () {
     var coreSkillsAttr = {
             'font-family': 'bebas',
             'font-size': 36,
-            'fill': '#fff',
-            'text-anchor': 'end'
+            'fill': '#fff'
     };
 
-    var bigNode = makeCircle(240, window.innerHeight / 2, 70, {
-        fill: GREEN,
-        opacity: .7,
+
+    var bigNode = makeCircle(100, 0, 70, {
+        fill: 'red',
+        opacity: .6,
         stroke: '#fff',
         'stroke-width': 1.5,
         'cursor':'pointer'
     });
 
-    projects['project-1'] = makeCircle(bigNode.x + 160, bigNode.y, 30, {
+    bigNode.drag(move, start, up);
+    bigNode.hover(glowOn, glowOff);
+
+    projects['bus-stop'] = makeCircle(bigNode.x + 170, bigNode.y, 30, {
         fill: BLUE,
         opacity: .7,
         stroke: '#fff',
@@ -31,33 +34,77 @@ window.onload = function () {
         'cursor': 'pointer'
     });
 
-    fElement['project-1'] = projects['project-1'];
+    for(p in projects){
+        fElement[p] = projects[p];
+        projects[p].hover(glowOn, glowOff);
+        projects[p].click(selectProject);
+    }
 
-    fElement['name'] = r.text(bigNode.x - 140, bigNode.y, 'Taiyo\nSogawa').attr(coreSkillsAttr);
+    var name = r.text(window.innerWidth - 30, window.innerHeight - 40, 'Taiyo Sogawa').attr(coreSkillsAttr).attr({'text-anchor': 'end'});
 
-    coreSkills['Sketch'] = r.text(window.innerWidth - 40, window.innerHeight / 5, 'Sketch').attr(coreSkillsAttr);
-    coreSkills['Design'] = r.text(window.innerWidth - 40, 2 * window.innerHeight / 5, 'Design').attr(coreSkillsAttr);
-    coreSkills['Build'] = r.text(window.innerWidth - 40, 3 * window.innerHeight / 5, 'Build').attr(coreSkillsAttr);
-    coreSkills['Engage'] = r.text(window.innerWidth - 40, 4 * window.innerHeight / 5, 'Engage').attr(coreSkillsAttr);
+    coreSkills['Sketch'] = r.text(bigNode.x, window.innerHeight / 5, 'Sketch').attr(coreSkillsAttr);
+    coreSkills['Design'] = r.text(bigNode.x, 2 * window.innerHeight / 5, 'Design').attr(coreSkillsAttr);
+    coreSkills['Build'] = r.text(bigNode.x, 3 * window.innerHeight / 5, 'Build').attr(coreSkillsAttr);
+    coreSkills['Engage'] = r.text(bigNode.x, 4 * window.innerHeight / 5, 'Engage').attr(coreSkillsAttr);
 
-    // Functions for dragging paths
-    var start = function () {
-        this.ody = 0;
-    },
-    move = function (dx, dy) {
-        for(f in fElement) {
-            fElement[f].translate(0, dy - this.ody);
+    //bigNode.toFront();
+
+
+    function createProject() {
+        pElement['story'] = [];
+        pElement['title'] = r.text(860, 100, 'Bus Stop').attr({
+            'font-family': 'bebas',
+            'font-size': 72,
+            'text-anchor': 'start',
+            'fill': '#fff'
+        });
+        pElement['img-frame'] = r.rect(45, 70, 795, 492).attr({
+            'stroke-width': 4,
+            'stroke-linejoin': 'round',
+            'stroke': '#222'
+        });
+        
+        pElement['img'] = r.image('img/bus_stop_0.png', 45, 70, 795, 492);
+
+        var textAttr = {
+            'font-family': 'arial',
+            'font-size': 16,
+            'text-anchor': 'start',
+            'fill': '#bbb',
+            'cursor': 'pointer'
+        };
+
+        pElement['story'][0] = r.text(860, 200, 
+            'I was searching for a way to make a bus stop\na desireable place to be.').attr(textAttr);
+        pElement['story'][1] = r.text(860, 270, 
+            'A meditative enclosing would be relaxing...\nbut who might you meet inside?').attr(textAttr);
+        pElement['story'][2] = r.text(860, 330, 
+            'I opted for a design that makes being in the elements a joy.').attr(textAttr);
+        pElement['story'][3] = r.text(860, 390, 
+            'The bus stop became a self sustained ecosphere which\npowers its own display and collects water for its plants.').attr(textAttr);
+        pElement['story'][4] = r.text(860, 460, 
+            'The community is empowered with a display of\nconcerted environmental efforts.').attr(textAttr);
+
+        pElement['story'][0].attr({'fill':'#fff'});
+        pElement['story'][0].hover(onTxt, offTxt);
+        pElement['story'][1].hover(onTxt, offTxt);
+        pElement['story'][2].hover(onTxt, offTxt);
+        pElement['story'][3].hover(onTxt, offTxt);
+        pElement['story'][4].hover(onTxt, offTxt);
+
+        for(p in pElement) {
+            if(p == 'story'){
+                for(s in pElement[p]) {
+                    pElement[p][s].attr({opacity: 0});
+                }
+            } else {
+                pElement[p].attr({opacity: 0});
+            }
         }
-        this.translate(0, dy - this.ody);
-        this.ody = dy;
-    },
-    up = function () {
-        this.y += this.ody;
-        for(f in fElement) {
-            fElement[f].y += this.ody;
-        }
-    },
-    selectProject = function () {
+        window.setTimeout(showProject, DISP_TIME);
+    }
+
+    function selectProject() {
         this.toFront();
         var newPath;
         var newOpacity;
@@ -81,94 +128,42 @@ window.onload = function () {
         this.stop().animate({
             path: newPath,
             opacity: newOpacity}, DISP_TIME, 'easeIn');
-    };
-    
-    bigNode.drag(move, start, up);
-    bigNode.hover(glowOn, glowOff);
-
-    for(p in projects){
-        projects[p].hover(glowOn, glowOff);
-        projects[p].click(selectProject);
-    }
-
-
-    function createProject() {
-        pElement['title'] = r.text(860, 100, 'Bus Stop').attr({
-            'font-family': 'bebas',
-            'font-size': 72,
-            'text-anchor': 'start',
-            'fill': '#fff'
-        });
-        pElement['img-frame'] = r.rect(45, 70, 795, 492).attr({
-            'stroke-width': 4,
-            'stroke-linejoin': 'round',
-            'stroke': '#222'
-        });
-        
-        pElement['img-2'] = r.image('img/bus_stop_2.png', 45, 70, 795, 492);
-        pElement['img-3'] = r.image('img/bus_stop_3.png', 45, 70, 795, 492);
-        pElement['img-4'] = r.image('img/bus_stop_4.png', 45, 70, 795, 492);
-        pElement['img-5'] = r.image('img/bus_stop_5.png', 45, 70, 795, 492);
-        pElement['img-1'] = r.image('img/bus_stop_1.png', 45, 70, 795, 492);
-
-        var textAttr = {
-            'font-family': 'arial',
-            'font-size': 16,
-            'text-anchor': 'start',
-            'fill': '#bbb',
-            'cursor': 'pointer'
-        };
-        pElement['story-1'] = r.text(860, 200, 
-            'I was searching for a way to make a bus stop\na desireable place to be.').attr(textAttr);
-        pElement['story-2'] = r.text(860, 270, 
-            'A meditative enclosing would be relaxing...\nbut who might you meet inside?').attr(textAttr);
-        pElement['story-3'] = r.text(860, 330, 
-            'I opted for a design that makes being in the elements a joy.').attr(textAttr);
-        pElement['story-4'] = r.text(860, 390, 
-            'The bus stop became a self sustained ecosphere which\npowers its own display and collects water for its plants.').attr(textAttr);
-        pElement['story-5'] = r.text(860, 460, 
-            'The community is empowered with a display of\nconcerted environmental efforts.').attr(textAttr);
-
-        pElement['story-1'].img = 'img-1';
-        pElement['story-2'].img = 'img-2';
-        pElement['story-3'].img = 'img-3';
-        pElement['story-4'].img = 'img-4';
-        pElement['story-5'].img = 'img-5';
-
-
-        pElement['story-1'].attr({'fill':'#fff'});
-        pElement['story-1'].hover(onTxt, offTxt);
-        pElement['story-2'].hover(onTxt, offTxt);
-        pElement['story-3'].hover(onTxt, offTxt);
-        pElement['story-4'].hover(onTxt, offTxt);
-        pElement['story-5'].hover(onTxt, offTxt);
-        
-        for(p in pElement) {
-            pElement[p].attr({opacity: 0});
-        }
-
-        window.setTimeout(showProject, DISP_TIME);
     }
 
     function onTxt() {
-        pElement[this.img].toFront();
-        pElement['story-1'].stop().animate({'fill': '#bbb'}, 400, 'easeIn');
+        pElement['img'].attr({
+            'src': 'img/bus_stop_' + pElement['story'].indexOf(this) + '.png'
+        });
+        for(var i = 0; i < pElement['story'].length; i++) {
+            pElement['story'][i].stop().animate({'fill': '#bbb'}, 400, 'easeIn');
+        }
         this.stop().animate({'fill': '#fff'}, 400, 'easeIn');
     }
 
     function offTxt() {
-        this.stop().animate({'fill': '#bbb'}, 400, 'easeIn');
     }
 
     function showProject() {
         for(p in pElement) {
-            pElement[p].animate({opacity: 1}, DISP_TIME / 2, 'easeIn');
+            if(p == 'story'){
+                for(s in pElement[p]) {
+                    pElement[p][s].animate({opacity: 1}, DISP_TIME / 2, 'easeIn');
+                }
+            } else {
+                pElement[p].animate({opacity: 1}, DISP_TIME / 2, 'easeIn');
+            }
         }
     }
 
     function removeProject() {
         for(p in pElement) {
-            pElement[p].remove();
+            if(p == 'story'){
+                for(s in pElement[p]) {
+                    pElement[p][s].remove();
+                }
+            } else {
+                pElement[p].remove();
+            }
         }
     }
 
@@ -235,9 +230,30 @@ window.onload = function () {
         f.translate(x, y);
     }
 
+    // Functions for dragging paths
+    function start() {
+        this.ody = 0;
+    }
+
+    function move(dx, dy) {
+        for(f in fElement) {
+            fElement[f].translate(0, dy - this.ody);
+        }
+        this.translate(0, dy - this.ody);
+        this.ody = dy;
+    }
+    function up() {
+        this.y += this.ody;
+        for(f in fElement) {
+            fElement[f].y += this.ody;
+        }
+    };
+
+/*
     var loop = function () {
         window.setTimeout(loop, 20);
     };
 
     loop();
+*/
 };
