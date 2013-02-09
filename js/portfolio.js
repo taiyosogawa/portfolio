@@ -5,9 +5,17 @@ window.onload = function () {
     var r = Raphael('container-div', window.innerWidth, window.innerHeight);
     var nodeState = {};
     var fElement = {};
+    var projects = {};
     var pElement = {};
+    var coreSkills = {};
+    var coreSkillsAttr = {
+            'font-family': 'bebas',
+            'font-size': 36,
+            'fill': '#fff',
+            'text-anchor': 'end'
+    };
 
-    var bigNode = makeCircle(window.innerWidth / 2, window.innerHeight / 2, 70, {
+    var bigNode = makeCircle(240, window.innerHeight / 2, 70, {
         fill: GREEN,
         opacity: .7,
         stroke: '#fff',
@@ -15,13 +23,7 @@ window.onload = function () {
         'cursor':'pointer'
     });
 
-    /*
-    fElement['image'] = r.image('img/bus_stop.png', 10, 10, 800, 800).attr({
-        path: circlePath(40)});
-    */
-   // fElement['image'].node.setAttribute('clip-path', 'url(#hex-mask)');
-
-    fElement['baby'] = makeCircle(bigNode.x + 200, bigNode.y, 30, {
+    projects['project-1'] = makeCircle(bigNode.x + 160, bigNode.y, 30, {
         fill: BLUE,
         opacity: .7,
         stroke: '#fff',
@@ -29,45 +31,43 @@ window.onload = function () {
         'cursor': 'pointer'
     });
 
-    //fElement['baby'].node.setAttribute('id', 'baby-node');
+    fElement['project-1'] = projects['project-1'];
 
-/*
-    $('#baby-node').before('<g><clipPath id="hex-mask">');
-    $('#baby-node').after('</clipPath></g>');
-*/
+    fElement['name'] = r.text(bigNode.x - 140, bigNode.y, 'Taiyo\nSogawa').attr(coreSkillsAttr);
+
+    coreSkills['Sketch'] = r.text(window.innerWidth - 40, window.innerHeight / 5, 'Sketch').attr(coreSkillsAttr);
+    coreSkills['Design'] = r.text(window.innerWidth - 40, 2 * window.innerHeight / 5, 'Design').attr(coreSkillsAttr);
+    coreSkills['Build'] = r.text(window.innerWidth - 40, 3 * window.innerHeight / 5, 'Build').attr(coreSkillsAttr);
+    coreSkills['Engage'] = r.text(window.innerWidth - 40, 4 * window.innerHeight / 5, 'Engage').attr(coreSkillsAttr);
+
     // Functions for dragging paths
     var start = function () {
-        this.odx = 0;
         this.ody = 0;
     },
     move = function (dx, dy) {
         for(f in fElement) {
-            fElement[f].translate(dx - this.odx, dy - this.ody);
+            fElement[f].translate(0, dy - this.ody);
         }
-        this.translate(dx - this.odx, dy - this.ody);
-        this.odx = dx;
+        this.translate(0, dy - this.ody);
         this.ody = dy;
     },
     up = function () {
-        this.x += this.odx;
         this.y += this.ody;
         for(f in fElement) {
-            fElement[f].x += this.odx;
             fElement[f].y += this.ody;
         }
     },
     selectProject = function () {
         this.toFront();
         var newPath;
-
         var newOpacity;
         if(+(nodeState[this] = !nodeState[this])){
             bigNode.undrag();
-            newPath = RRectPath(15 - this.x, 25 - this.y, window.innerWidth - 95, window.innerHeight - 50, 8, 8);
+            newPath = RRectPath(20 - this.x, 25 - this.y, window.innerWidth - 95, window.innerHeight - 50, 8, 8);
             newOpacity = .9;
-            fElement['glow'].hide();
+            if(fElement['glow'] != undefined) fElement['glow'].hide();
             createProject();
-            
+            for(c in coreSkills) coreSkills[c].animate({opacity: 0}, DISP_TIME, 'easeIn');
 
         } else {
             bigNode.drag(move, start, up);
@@ -76,6 +76,7 @@ window.onload = function () {
             removeProject();
             window.setTimeout(fElement['glow'].hide(), DISP_TIME);
             window.setTimeout(bigNode.toFront, DISP_TIME);
+            for(c in coreSkills) coreSkills[c].animate({opacity: 1}, DISP_TIME, 'easeIn');
         }
         this.stop().animate({
             path: newPath,
@@ -83,17 +84,16 @@ window.onload = function () {
     };
     
     bigNode.drag(move, start, up);
-    //bigNode.dblclick(selectProject);
     bigNode.hover(glowOn, glowOff);
 
-    for(f in fElement){
-        fElement[f].click(selectProject);
-       // fElement[f].hover(glowOn, glowOff);
+    for(p in projects){
+        projects[p].hover(glowOn, glowOff);
+        projects[p].click(selectProject);
     }
 
 
     function createProject() {
-        pElement['title'] = r.text(860, 100, 'Bus  Stop').attr({
+        pElement['title'] = r.text(860, 100, 'Bus Stop').attr({
             'font-family': 'bebas',
             'font-size': 72,
             'text-anchor': 'start',
@@ -163,7 +163,6 @@ window.onload = function () {
     function showProject() {
         for(p in pElement) {
             pElement[p].animate({opacity: 1}, DISP_TIME / 2, 'easeIn');
-
         }
     }
 
@@ -174,10 +173,14 @@ window.onload = function () {
     }
 
     function glowOn() {
-        fElement['glow'] = this.glow({'color': '#fff'});
-        fElement['glow'].x = this.x;
-        fElement['glow'].y = this.y;
-        r.add(glowElement);
+        if (nodeState[this] != undefined) {
+            if(nodeState[this] == 0) {
+                fElement['glow'] = this.glow({'color': '#fff'});
+                fElement['glow'].x = this.x;
+                fElement['glow'].y = this.y;
+                r.add(glowElement);
+            }
+        }
     }
 
     function glowOff() {
