@@ -1,104 +1,126 @@
 window.onload = function () {
+    /*
+     * CONSTANTS
+     */
     var DISP_TIME = 650;
-    var GREEN = '#53df00';
-    var BLUE = '#099'
+    var BLUE = '#5f9ea0';
+    var WHITE = '#fff';
+    var RED = '#b22222';
+    var GRAYBLUE = '#7bb';
     var r = Raphael('container-div', window.innerWidth, window.innerHeight);
     var nodeState = {};
-    var fElement = {};
-    var projects = {};
-    var pElement = {};
+    var fElements = {};
+    var bubbles = {};
+    var pElements = {};
     var coreSkills = {};
     var coreSkillsAttr = {
-            'font-family': 'bebas',
-            'font-size': 36,
-            'fill': '#fff'
+        'font-family': 'mido',
+        'font-size': 40,
+        'fill': '#fff'
     };
 
+    /*
+     * PROJECTS
+     */
 
-    var bigNode = makeCircle(100, 0, 70, {
-        fill: 'red',
-        opacity: .6,
+     var projects = {
+        'bus-stop': {
+            'name': 'bus-stop',
+            'title': 'Bus Stop',
+            'story': [
+                'I was looking for a way to make the bus stop a\ndesireable place to be.',
+                'A meditative enclosing could be relaxing, but you\ndon\'t know who you might meet inside.',
+                'I instead opted for a design that makes the most\nof being outdoors.',
+                'The bus stop became a self sustained ecosphere,\npowering its own display and collecting water and\ncompost for its plants.',
+                'The community would be empowered with a\ndisplay of concerted environmental efforts.'
+            ]
+        }
+    };
+
+    var pElements = {
+            'story': []
+    };
+
+    /*
+     * CODE
+     */ 
+
+    var bigRed = makeCircle(100, 0, 70, {
+        fill: RED,
+        opacity: .9,
         stroke: '#fff',
         'stroke-width': 1.5,
         'cursor':'pointer'
     });
 
-    bigNode.drag(move, start, up);
-    bigNode.hover(glowOn, glowOff);
+    bigRed.drag(move, start, up);
+    bigRed.hover(glowOn, glowOff);
 
-    projects['bus-stop'] = makeCircle(bigNode.x + 170, bigNode.y, 30, {
+    fElements['bus-stop-label'] = r.text(bigRed.x + 170, bigRed.y, 'Bus\nStop').attr(coreSkillsAttr).attr({'font-size': '16'});
+
+    bubbles['bus-stop'] = makeCircle(bigRed.x + 170, bigRed.y, 40, {
         fill: BLUE,
-        opacity: .7,
-        stroke: '#fff',
+        opacity: .6,
+        stroke: WHITE,
         'stroke-width': 1.2,
         'cursor': 'pointer'
     });
 
-    for(p in projects){
-        fElement[p] = projects[p];
-        projects[p].hover(glowOn, glowOff);
-        projects[p].click(selectProject);
+
+    for(b in bubbles){
+        bubbles[b].pname = b;
+        fElements[b] = bubbles[b];
+        bubbles[b].hover(glowOn, glowOff);
+        bubbles[b].click(selectProject);
     }
 
-    var name = r.text(window.innerWidth - 30, window.innerHeight - 40, 'Taiyo Sogawa').attr(coreSkillsAttr).attr({'text-anchor': 'end'});
+    var name = r.image('img/name.png', window.innerWidth - 307, window.innerHeight - 60, 290, 50);
+    coreSkills['Sketch'] = r.text(bigRed.x, window.innerHeight / 5, 'sketch').attr(coreSkillsAttr);
+    coreSkills['Design'] = r.text(bigRed.x, 2 * window.innerHeight / 5, 'design').attr(coreSkillsAttr);
+    coreSkills['Build'] = r.text(bigRed.x, 3 * window.innerHeight / 5, 'build').attr(coreSkillsAttr);
+    coreSkills['Engage'] = r.text(bigRed.x, 4 * window.innerHeight / 5, 'engage').attr(coreSkillsAttr);
 
-    coreSkills['Sketch'] = r.text(bigNode.x, window.innerHeight / 5, 'Sketch').attr(coreSkillsAttr);
-    coreSkills['Design'] = r.text(bigNode.x, 2 * window.innerHeight / 5, 'Design').attr(coreSkillsAttr);
-    coreSkills['Build'] = r.text(bigNode.x, 3 * window.innerHeight / 5, 'Build').attr(coreSkillsAttr);
-    coreSkills['Engage'] = r.text(bigNode.x, 4 * window.innerHeight / 5, 'Engage').attr(coreSkillsAttr);
+    function createProject(pname) {
+        var project = projects[pname];
 
-    //bigNode.toFront();
-
-
-    function createProject() {
-        pElement['story'] = [];
-        pElement['title'] = r.text(860, 100, 'Bus Stop').attr({
-            'font-family': 'bebas',
+        pElements['title'] = r.text(860, 100, project['title']).attr({
+            'font-family': 'mido',
             'font-size': 72,
             'text-anchor': 'start',
             'fill': '#fff'
         });
-        pElement['img-frame'] = r.rect(45, 70, 795, 492).attr({
+        console.log(pElements['title']);
+
+        pElements['img-frame'] = r.rect(45, 70, 795, 492).attr({
             'stroke-width': 4,
             'stroke-linejoin': 'round',
             'stroke': '#222'
         });
         
-        pElement['img'] = r.image('img/bus_stop_0.png', 45, 70, 795, 492);
+        pElements['img'] = r.image('img/' + project['name'] + '0.png', 45, 70, 795, 492);
 
         var textAttr = {
-            'font-family': 'arial',
-            'font-size': 16,
+            'font-family': 'Roboto Condensed',
+            'font-size': 22,
             'text-anchor': 'start',
-            'fill': '#bbb',
-            'cursor': 'pointer'
+            'fill': GRAYBLUE,
+            'cursor': 'default'
         };
 
-        pElement['story'][0] = r.text(860, 200, 
-            'I was searching for a way to make a bus stop\na desireable place to be.').attr(textAttr);
-        pElement['story'][1] = r.text(860, 270, 
-            'A meditative enclosing would be relaxing...\nbut who might you meet inside?').attr(textAttr);
-        pElement['story'][2] = r.text(860, 330, 
-            'I opted for a design that makes being in the elements a joy.').attr(textAttr);
-        pElement['story'][3] = r.text(860, 390, 
-            'The bus stop became a self sustained ecosphere which\npowers its own display and collects water for its plants.').attr(textAttr);
-        pElement['story'][4] = r.text(860, 460, 
-            'The community is empowered with a display of\nconcerted environmental efforts.').attr(textAttr);
+        for(var i = 0; i < project['story'].length; i++){
+            pElements['story'][i] = r.text(860, 200 + 80*i, 
+            project['story'][i]).attr(textAttr).hover(onTxt, offTxt);
+        }
+        pElements['story'][0].attr({'fill':'#fff'});
 
-        pElement['story'][0].attr({'fill':'#fff'});
-        pElement['story'][0].hover(onTxt, offTxt);
-        pElement['story'][1].hover(onTxt, offTxt);
-        pElement['story'][2].hover(onTxt, offTxt);
-        pElement['story'][3].hover(onTxt, offTxt);
-        pElement['story'][4].hover(onTxt, offTxt);
 
-        for(p in pElement) {
+        for(p in pElements) {
             if(p == 'story'){
-                for(s in pElement[p]) {
-                    pElement[p][s].attr({opacity: 0});
+                for(s in pElements[p]) {
+                    pElements[p][s].attr({opacity: 0});
                 }
             } else {
-                pElement[p].attr({opacity: 0});
+                pElements[p].attr({opacity: 0});
             }
         }
         window.setTimeout(showProject, DISP_TIME);
@@ -109,33 +131,32 @@ window.onload = function () {
         var newPath;
         var newOpacity;
         if(+(nodeState[this] = !nodeState[this])){
-            bigNode.undrag();
-            newPath = RRectPath(20 - this.x, 25 - this.y, window.innerWidth - 95, window.innerHeight - 50, 8, 8);
-            newOpacity = .9;
-            if(fElement['glow'] != undefined) fElement['glow'].hide();
-            createProject();
+            bigRed.undrag();
+            newPath = panelPath( 8 - this.x, 25 - this.y, window.innerWidth - 20, window.innerHeight - 50, 6, 6);
+            newOpacity = 1;
+            if(fElements['glow'] != undefined) fElements['glow'].hide();
+            createProject(this.pname);
             for(c in coreSkills) coreSkills[c].animate({opacity: 0}, DISP_TIME, 'easeIn');
-
         } else {
-            bigNode.drag(move, start, up);
+            bigRed.drag(move, start, up);
             newPath = this.cpath;
             newOpacity = .7;
             removeProject();
-            window.setTimeout(fElement['glow'].hide(), DISP_TIME);
-            window.setTimeout(bigNode.toFront, DISP_TIME);
+            window.setTimeout(fElements['glow'].hide(), DISP_TIME);
+            window.setTimeout(bigRed.toFront, DISP_TIME);
             for(c in coreSkills) coreSkills[c].animate({opacity: 1}, DISP_TIME, 'easeIn');
-        }
+        }`
         this.stop().animate({
             path: newPath,
             opacity: newOpacity}, DISP_TIME, 'easeIn');
     }
 
     function onTxt() {
-        pElement['img'].attr({
-            'src': 'img/bus_stop_' + pElement['story'].indexOf(this) + '.png'
+        pElements['img'].attr({
+            'src': 'img/' + pElements['title']['attrs']['text'].replace(/\s+/g, '-').toLowerCase() + pElements['story'].indexOf(this) + '.png'
         });
-        for(var i = 0; i < pElement['story'].length; i++) {
-            pElement['story'][i].stop().animate({'fill': '#bbb'}, 400, 'easeIn');
+        for(var i = 0; i < pElements['story'].length; i++) {
+            pElements['story'][i].stop().animate({'fill': GRAYBLUE}, 400, 'easeIn');
         }
         this.stop().animate({'fill': '#fff'}, 400, 'easeIn');
     }
@@ -144,25 +165,25 @@ window.onload = function () {
     }
 
     function showProject() {
-        for(p in pElement) {
+        for(p in pElements) {
             if(p == 'story'){
-                for(s in pElement[p]) {
-                    pElement[p][s].animate({opacity: 1}, DISP_TIME / 2, 'easeIn');
+                for(s in pElements[p]) {
+                    pElements[p][s].animate({opacity: 1}, DISP_TIME / 2, 'easeIn');
                 }
             } else {
-                pElement[p].animate({opacity: 1}, DISP_TIME / 2, 'easeIn');
+                pElements[p].animate({opacity: 1}, DISP_TIME / 2, 'easeIn');
             }
         }
     }
 
     function removeProject() {
-        for(p in pElement) {
+        for(p in pElements) {
             if(p == 'story'){
-                for(s in pElement[p]) {
-                    pElement[p][s].remove();
+                for(s in pElements[p]) {
+                    pElements[p][s].remove();
                 }
             } else {
-                pElement[p].remove();
+                pElements[p].remove();
             }
         }
     }
@@ -170,16 +191,16 @@ window.onload = function () {
     function glowOn() {
         if (nodeState[this] != undefined) {
             if(nodeState[this] == 0) {
-                fElement['glow'] = this.glow({'color': '#fff'});
-                fElement['glow'].x = this.x;
-                fElement['glow'].y = this.y;
+                fElements['glow'] = this.glow({'color': '#fff'});
+                fElements['glow'].x = this.x;
+                fElements['glow'].y = this.y;
                 r.add(glowElement);
             }
         }
     }
 
     function glowOff() {
-        fElement['glow'].remove();
+        fElements['glow'].remove();
     }
 
     function makeCircle(x, y, rad, a) {
@@ -210,18 +231,19 @@ window.onload = function () {
         return string;
     }
 
-    function RRectPath(x, y, w, h, r) {
+    function panelPath(x, y, w, h, r) {
         w = w - r;
         h = h - r;
         var string = 'M '+x+' '+y;
         string += 'h '+w;
         string += 'a '+r+','+r+' 0 0,1 '+r+','+r;
-        string += 'v '+h;
+        string += 'v '+ (h - 50);
         string += 'a '+r+','+r+' 0 0,1 -'+r+','+r;
-        string += 'h -'+w;
-        string += 'a '+r+','+r+' 0 0,1 -'+r+',-'+r;
+        string += 'h -285 l -50 50';
+        string += 'h -' + (w-335);
+        //string += 'a '+r+','+r+' 0 0,1 -'+r+',-'+r;
         string += 'v -'+h;
-        string += 'a '+r+','+r+' 0 0,1 '+r+',-'+r;
+        //string += 'a '+r+','+r+' 0 0,1 '+r+',-'+r;
         string += 'z';
         return string;
     }
@@ -236,24 +258,35 @@ window.onload = function () {
     }
 
     function move(dx, dy) {
-        for(f in fElement) {
-            fElement[f].translate(0, dy - this.ody);
+        for(f in fElements) {
+            fElements[f].translate(0, dy - this.ody);
         }
         this.translate(0, dy - this.ody);
         this.ody = dy;
     }
     function up() {
         this.y += this.ody;
-        for(f in fElement) {
-            fElement[f].y += this.ody;
+        for(f in fElements) {
+            fElements[f].y += this.ody;
         }
     };
 
-/*
+    /*
+    $("body").mousemove(function(event) {
+      var msg = "Handler for .mousemove() called at ";
+      msg += event.pageX + ", " + event.pageY;
+      $("#log").append("<div>" + msg + "</div>");
+    });
+    
+
     var loop = function () {
         window.setTimeout(loop, 20);
     };
 
     loop();
-*/
+    */
+
+    function onMouseMove() {
+
+    }
 };
