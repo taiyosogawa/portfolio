@@ -16,12 +16,12 @@ window.onload = function () {
     var bubbles = {};
     var pElements = {};
     var coreSkills = {};
+    var panelActive = false;
     var coreSkillsAttr = {
         'font-family': 'mido',
         'font-size': 40,
         'fill': '#fff'
     };
-
 
     /*
      * PROJECTS
@@ -57,10 +57,9 @@ window.onload = function () {
         'cursor':'pointer'
     });
 
-    bigRed.drag(move, start, up);
-    bigRed.hover(glowOn, glowOff);
+    //bigRed.drag(move, start, up);
 
-    fElements['bus-stop-label'] = r.text(bigRed.x + 170, bigRed.y, 'Bus\nStop').attr(coreSkillsAttr).attr({'font-size': '16'});
+  //  fElements['bus-stop-label'] = r.text(bigRed.x + 170, bigRed.y, 'Bus\nStop').attr(coreSkillsAttr).attr({'font-size': '16'});
 
     bubbles['bus-stop'] = makeCircle(bigRed.x + 170, bigRed.y, 40, {
         fill: BLUE,
@@ -88,7 +87,7 @@ window.onload = function () {
 
         var imgHeight = svgHeight - 140;
         var imgWidth = imgHeight * 1.61;
-        var imgX = 45;
+        var imgX = 30;
         var imgY = 70;
         var margin = 20;
 
@@ -135,8 +134,8 @@ window.onload = function () {
             }
 
             //alert((maxHeight - toth) / i);
-            for(var i = 0; i < project['story'].length; i++) pElements['story'][i].remove();
-            if(bigWidth < maxWidth) break;
+            for (var i = 0; i < project['story'].length; i++) pElements['story'][i].remove();
+            if ((bigWidth < maxWidth) || (fontSize < 4)) break;
             else fontSize -= 1;
         }
 
@@ -165,27 +164,30 @@ window.onload = function () {
 
     function selectProject() {
         this.toFront();
-        var newPath;
-        var newOpacity;
         if(+(nodeState[this] = !nodeState[this])){
             bigRed.undrag();
-            newPath = panelPath( 8 - this.x, 25 - this.y, svgWidth - 20, svgHeight - 50, 6, 6);
-            newOpacity = 1;
+            this.cpath = this['attrs']['path'];
             if(fElements['glow'] != undefined) fElements['glow'].hide();
             createProject(this.pname);
             for(c in coreSkills) coreSkills[c].animate({opacity: 0}, DISP_TIME, 'easeIn');
+            panelActive = true;
+            this.stop().animate({
+                path: panelPath( 8, 25, svgWidth - 20, svgHeight - 50, 6, 6),
+                opacity: 1}, DISP_TIME, 'easeIn'
+            );
         } else {
             bigRed.drag(move, start, up);
-            newPath = this.cpath;
-            newOpacity = .7;
             removeProject();
             window.setTimeout(fElements['glow'].hide(), DISP_TIME);
             window.setTimeout(bigRed.toFront, DISP_TIME);
             for(c in coreSkills) coreSkills[c].animate({opacity: 1}, DISP_TIME, 'easeIn');
+            panelActive = false;
+            this.stop().animate({
+                path: this.cpath,
+                opacity: .7}, DISP_TIME + 100, 'easeOut'
+            );
         }
-        this.stop().animate({
-            path: newPath,
-            opacity: newOpacity}, DISP_TIME, 'easeIn');
+        
     }
 
     function onTxt() {
@@ -231,7 +233,6 @@ window.onload = function () {
                 fElements['glow'] = this.glow({'color': '#fff'});
                 fElements['glow'].x = this.x;
                 fElements['glow'].y = this.y;
-                r.add(glowElement);
             }
         }
     }
@@ -241,20 +242,19 @@ window.onload = function () {
     }
 
     function makeCircle(x, y, rad, a) {
-        var p = circlePath(rad);
+        var p = circlePath(x, y, rad);
         var circle = r.path(p).attr(a);
         circle.cpath = p;
-        circle.translate(x, y);
         circle.x = x;
         circle.y = y;
         nodeState[circle] = 0;
         return circle;
     }
 
-    function circlePath(r) {
+    function circlePath(x, y, r) {
         var l = r / Math.sqrt(2);
         var s = r - l;
-        var string = 'M 0, 0';
+        var string = 'M ' + x + ', ' + y;
         string +='m 0,-'+r;
         string +='a '+r+','+r+' 0 0,1 '+l+','+s;
         string +='a '+r+','+r+' 0 0,1 '+s+','+l;
@@ -285,20 +285,16 @@ window.onload = function () {
         return string;
     }
 
-    function follow(f, x, y) {
-        f.translate(x, y);
-    }
-
     // Functions for dragging paths
     function start() {
         this.ody = 0;
     }
 
     function move(dx, dy) {
+        bigRed.stop().animate({path: circlePath(bigRed.x, this.ody, 70)}, 500, 'easeOut');
         for(f in fElements) {
-            fElements[f].translate(0, dy - this.ody);
+            fElements[f].stop().animate({path: circlePath(fElements[f].x, this.ody, 40)}, 500, 'easeOut');
         }
-        this.translate(0, dy - this.ody);
         this.ody = dy;
     }
     function up() {
@@ -308,22 +304,49 @@ window.onload = function () {
         }
     };
 
-    /*
-    $("body").mousemove(function(event) {
-      var msg = "Handler for .mousemove() called at ";
-      msg += event.pageX + ", " + event.pageY;
-      $("#log").append("<div>" + msg + "</div>");
-    });
-    
+    function mouseX(evt) {if (!evt) evt = window.event; if (evt.pageX) return evt.pageX; else if (evt.clientX)return evt.clientX + (document.documentElement.scrollLeft ?  document.documentElement.scrollLeft : document.body.scrollLeft); else return 0;}
+    function mouseY(evt) {if (!evt) evt = window.event; if (evt.pageY) return evt.pageY; else if (evt.clientY)return evt.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop); else return 0;}
 
-    var loop = function () {
-        window.setTimeout(loop, 20);
-    };
+    function followMouse(evt) {
+        if(!panelActive){
+            var my = mouseY(evt);
+            var mx = mouseX(evt);
 
-    loop();
-    */
+            if (mx < 185) {
+                bigRed.stop().animate({path: circlePath(bigRed.x, my, 70)}, 500, 'easeOut');
 
-    function onMouseMove() {
+                for(f in fElements) {
+                    // Try to synch this with bigRed!
+                    fElements[f].stop().animate({path: circlePath(fElements[f].x, my, 40)}, 500, 'easeOut');
+                    fElements[f].y = my;
+                }
+            } else if (mx < 225) {
+                bigRed.stop().animate({path: circlePath(bigRed.x, my, 70)}, 600, 'linear');
 
+                for(f in fElements) {
+                    fElements[f].stop().animate({path: circlePath(fElements[f].x, my, 40)}, 600, 'linear');
+                    fElements[f].y = my;
+                }
+            } else if (mx < 230) {
+                bigRed.stop().animate({path: circlePath(bigRed.x, my, 70)}, 750, 'easeOut');
+
+                for(f in fElements) {
+                    fElements[f].stop().animate({path: circlePath(fElements[f].x, my, 40)}, 750, 'easeOut');
+                    fElements[f].y = my;
+                }
+            }
+        }
+        
     }
+
+    document.onmousemove = followMouse;
+        
+
 };
+
+
+
+
+
+
+                    
