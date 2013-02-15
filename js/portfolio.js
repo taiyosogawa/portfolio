@@ -7,7 +7,10 @@ window.onload = function () {
     var WHITE = '#fff';
     var RED = '#b22222';
     var GRAYBLUE = '#7bb';
-    var r = Raphael('container-div', window.innerWidth, window.innerHeight);
+    var svgWidth = window.innerWidth;
+    var svgHeight = window.innerHeight;
+    if(svgWidth < svgHeight * 1.8) svgWidth = svgHeight * 1.8;
+    var r = Raphael('container-div', svgWidth, svgHeight);
     var nodeState = {};
     var fElements = {};
     var bubbles = {};
@@ -18,6 +21,7 @@ window.onload = function () {
         'font-size': 40,
         'fill': '#fff'
     };
+
 
     /*
      * PROJECTS
@@ -66,7 +70,6 @@ window.onload = function () {
         'cursor': 'pointer'
     });
 
-
     for(b in bubbles){
         bubbles[b].pname = b;
         fElements[b] = bubbles[b];
@@ -74,45 +77,79 @@ window.onload = function () {
         bubbles[b].click(selectProject);
     }
 
-    var name = r.image('img/name.png', window.innerWidth - 307, window.innerHeight - 60, 290, 50);
-    coreSkills['Sketch'] = r.text(bigRed.x, window.innerHeight / 5, 'sketch').attr(coreSkillsAttr);
-    coreSkills['Design'] = r.text(bigRed.x, 2 * window.innerHeight / 5, 'design').attr(coreSkillsAttr);
-    coreSkills['Build'] = r.text(bigRed.x, 3 * window.innerHeight / 5, 'build').attr(coreSkillsAttr);
-    coreSkills['Engage'] = r.text(bigRed.x, 4 * window.innerHeight / 5, 'engage').attr(coreSkillsAttr);
+    var name = r.image('img/name.png', svgWidth - 307, svgHeight - 60, 290, 50);
+    coreSkills['Sketch'] = r.text(bigRed.x, svgHeight / 5, 'sketch').attr(coreSkillsAttr);
+    coreSkills['Design'] = r.text(bigRed.x, 2 * svgHeight / 5, 'design').attr(coreSkillsAttr);
+    coreSkills['Build'] = r.text(bigRed.x, 3 * svgHeight / 5, 'build').attr(coreSkillsAttr);
+    coreSkills['Engage'] = r.text(bigRed.x, 4 * svgHeight / 5, 'engage').attr(coreSkillsAttr);
 
     function createProject(pname) {
         var project = projects[pname];
 
-        pElements['title'] = r.text(860, 100, project['title']).attr({
-            'font-family': 'mido',
-            'font-size': 72,
-            'text-anchor': 'start',
-            'fill': '#fff'
-        });
-        console.log(pElements['title']);
+        var imgHeight = svgHeight - 140;
+        var imgWidth = imgHeight * 1.61;
+        var imgX = 45;
+        var imgY = 70;
+        var margin = 20;
 
-        pElements['img-frame'] = r.rect(45, 70, 795, 492).attr({
+        pElements['img-frame'] = r.rect(imgX, imgY, imgWidth, imgHeight).attr({
             'stroke-width': 4,
             'stroke-linejoin': 'round',
             'stroke': '#222'
         });
-        
-        pElements['img'] = r.image('img/' + project['name'] + '0.png', 45, 70, 795, 492);
+
+        pElements['img'] = r.image('img/' + project['name'] + '0.png', imgX, imgY, imgWidth, imgHeight);
+
+        pElements['title'] = r.text(imgX + imgWidth + margin, 85, project['title']).attr({
+            'font-family': 'mido',
+            'text-anchor': 'start',
+            'fill': '#fff',
+            'font-size': 40
+        });
 
         var textAttr = {
             'font-family': 'Roboto Condensed',
-            'font-size': 22,
             'text-anchor': 'start',
             'fill': GRAYBLUE,
             'cursor': 'default'
         };
 
-        for(var i = 0; i < project['story'].length; i++){
-            pElements['story'][i] = r.text(860, 200 + 80*i, 
-            project['story'][i]).attr(textAttr).hover(onTxt, offTxt);
-        }
-        pElements['story'][0].attr({'fill':'#fff'});
+        var maxWidth = svgWidth - imgX - imgWidth - margin;
+        var maxHeight = svgHeight - pElements['title'].getBBox()['y2'] - 80;
+        var fontSize = 22;
+        var txtY = pElements['title'].getBBox()['y2'] + 25;
+        var txtX = imgX + imgWidth + margin;
 
+        // Calculate correct layouts
+        while(true) {
+            var bigWidth = 0;
+            var tw = 0;
+            var toth = 0;
+            var i;
+            for(i = 0; i < project['story'].length; i++) {
+                pElements['story'][i] = r.text(txtX, txtY, 
+                project['story'][i]).attr(textAttr).attr({'font-size': fontSize}).hover(onTxt, offTxt);
+                tw = pElements['story'][i].getBBox()['width'];
+                toth += pElements['story'][i].getBBox()['height'];
+                if(tw > bigWidth) bigWidth = tw;
+            }
+
+            //alert((maxHeight - toth) / i);
+            for(var i = 0; i < project['story'].length; i++) pElements['story'][i].remove();
+            if(bigWidth < maxWidth) break;
+            else fontSize -= 1;
+        }
+
+        // Actually draw text
+        var txtM = Math.min(35, (maxHeight - toth) / i);
+        txtY += txtM/2;
+        for(i = 0; i < project['story'].length; i++) {
+                pElements['story'][i] = r.text(txtX, txtY, 
+                project['story'][i]).attr(textAttr).attr({'font-size': fontSize}).hover(onTxt, offTxt);
+                txtY += pElements['story'][i].getBBox()['height'] + txtM;
+        }
+
+        pElements['story'][0].attr({'fill':'#fff'});
 
         for(p in pElements) {
             if(p == 'story'){
@@ -132,7 +169,7 @@ window.onload = function () {
         var newOpacity;
         if(+(nodeState[this] = !nodeState[this])){
             bigRed.undrag();
-            newPath = panelPath( 8 - this.x, 25 - this.y, window.innerWidth - 20, window.innerHeight - 50, 6, 6);
+            newPath = panelPath( 8 - this.x, 25 - this.y, svgWidth - 20, svgHeight - 50, 6, 6);
             newOpacity = 1;
             if(fElements['glow'] != undefined) fElements['glow'].hide();
             createProject(this.pname);
@@ -145,7 +182,7 @@ window.onload = function () {
             window.setTimeout(fElements['glow'].hide(), DISP_TIME);
             window.setTimeout(bigRed.toFront, DISP_TIME);
             for(c in coreSkills) coreSkills[c].animate({opacity: 1}, DISP_TIME, 'easeIn');
-        }`
+        }
         this.stop().animate({
             path: newPath,
             opacity: newOpacity}, DISP_TIME, 'easeIn');
