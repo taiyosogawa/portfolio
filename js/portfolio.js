@@ -67,9 +67,13 @@ window.onload = function () {
 
     //bigRed.drag(move, start, up);
 
-    //fElements['bus-stop-label'] = r.text(bigRed.x + 170, bigRed.y, 'Bus\nStop').attr(coreSkillsAttr).attr({'font-size': '16'});
+    //fElements['bus-stop-label'] = r.text(bigRed['attrs']['path'][0][1] + 170, bigRed.y, 'Bus\nStop').attr(coreSkillsAttr).attr({'font-size': '16'});
 
-    bubbles['bus-stop'] = makeCircle(bigRed.x + 190, bigRed.y, 40, bubbleAttrs);
+    bubbles['bus-stop'] = makeCircle(bigRed['attrs']['path'][0][1] + 190, bigRed.y, 40, bubbleAttrs);
+    bubbles['bus-stop'].sketchV = .8;
+    bubbles['bus-stop'].designV = .2;
+    bubbles['bus-stop'].buildV = 0;
+    bubbles['bus-stop'].engageV = 0;
 
     for(b in bubbles){
         bubbles[b].pname = b;
@@ -79,10 +83,10 @@ window.onload = function () {
     }
 
     var name = r.image('img/name.png', svgWidth - 307, svgHeight - 60, 290, 50);
-    coreSkills['Sketch'] = r.text(bigRed.x, svgHeight / 5, 'sketch').attr(coreSkillsAttr);
-    coreSkills['Design'] = r.text(bigRed.x, 2 * svgHeight / 5, 'design').attr(coreSkillsAttr);
-    coreSkills['Build'] = r.text(bigRed.x, 3 * svgHeight / 5, 'build').attr(coreSkillsAttr);
-    coreSkills['Engage'] = r.text(bigRed.x, 4 * svgHeight / 5, 'engage').attr(coreSkillsAttr);
+    coreSkills['Sketch'] = r.text(bigRed['attrs']['path'][0][1], svgHeight / 5, 'sketch').attr(coreSkillsAttr);
+    coreSkills['Design'] = r.text(bigRed['attrs']['path'][0][1], 2 * svgHeight / 5, 'design').attr(coreSkillsAttr);
+    coreSkills['Build'] = r.text(bigRed['attrs']['path'][0][1], 3 * svgHeight / 5, 'build').attr(coreSkillsAttr);
+    coreSkills['Engage'] = r.text(bigRed['attrs']['path'][0][1], 4 * svgHeight / 5, 'engage').attr(coreSkillsAttr);
 
     function createProject(pname) {
         var project = projects[pname];
@@ -105,7 +109,8 @@ window.onload = function () {
             'font-family': 'mido',
             'text-anchor': 'start',
             'fill': '#fff',
-            'font-size': 40
+            'font-size': 40,
+            'cursor': 'default'
         });
 
         var textAttr = {
@@ -240,7 +245,7 @@ window.onload = function () {
         var p = circlePath(x, y, rad);
         var circle = r.path(p).attr(a);
         circle.cpath = p;
-        circle.x = x;
+
         circle.y = y;
         nodeState[circle] = 0;
         return circle;
@@ -286,9 +291,9 @@ window.onload = function () {
     }
 
     function move(dx, dy) {
-        bigRed.stop().animate({path: circlePath(bigRed.x, this.ody, 70)}, 500, 'easeOut');
+        bigRed.stop().animate({path: circlePath(bigRed['attrs']['path'][0][1], this.ody, 70)}, 500, 'easeOut');
         for(f in fElements) {
-            fElements[f].stop().animate({path: circlePath(fElements[f].x, this.ody, 40)}, 500, 'easeOut');
+            fElements[f].stop().animate({path: circlePath(fElements[f]['attrs']['path'][0][1], this.ody, 40)}, 500, 'easeOut');
         }
         this.ody = dy;
     }
@@ -303,40 +308,44 @@ window.onload = function () {
     function mouseY(evt) {if (!evt) evt = window.event; if (evt.pageY) return evt.pageY; else if (evt.clientY)return evt.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop); else return 0;}
 
     function followMouse(evt) {
-        if(!panelActive){
-            var my = mouseY(evt);
+        var my = mouseY(evt);
+        //console.log(Math.abs((bigRed['attrs']['path'][0][2]) - my));
+        if((Math.abs((bigRed['attrs']['path'][0][2]) - my) > 42) && (!panelActive)) { 
             var mx = mouseX(evt);
-
-            if (mx < 185) {
-                bigRed.stop().animate({path: circlePath(bigRed.x, my, 70)}, 500, 'easeOut');
-
-                for(f in fElements) {
-                    // Try to synch this with bigRed!
-                    fElements[f].stop().animate({path: circlePath(fElements[f].x, my, 40)}, 500, 'easeOut');
-                    fElements[f].y = my;
-                }
-            } else if (mx < 225) {
-                bigRed.stop().animate({path: circlePath(bigRed.x, my, 70)}, 600, 'linear');
-
-                for(f in fElements) {
-                    fElements[f].stop().animate({path: circlePath(fElements[f].x, my, 40)}, 600, 'linear');
-                    fElements[f].y = my;
-                }
-            } else if (mx < 230) {
-                bigRed.stop().animate({path: circlePath(bigRed.x, my, 70)}, 750, 'easeOut');
-
-                for(f in fElements) {
-                    fElements[f].stop().animate({path: circlePath(fElements[f].x, my, 40)}, 750, 'easeOut');
-                    fElements[f].y = my;
-                }
+            if (mx < 150) {
+                bubbleFollow(my, 250, 'easeOut');
+            } else if (mx < 200) {
+                bubbleFollow(my, mx + 100, 'easeOut');
             }
+
+            /* else if (mx < 225) {
+                bubbleFollow(my, 600, 'linear');
+            } else if (mx < 230) {
+                bubbleFollow(my, 750, 'easeOut');
+            }
+            */
         }
-        
+    }
+
+    function bubbleFollow(my, time, ease) {
+        bigRed.stop().animate({path: circlePath(bigRed['attrs']['path'][0][1], my, 70)}, time, ease);
+        var sketchF = Math.max(0, (80 - (Math.abs(coreSkills['Sketch']['attrs']['y'] - my) / 2)));
+        var designF = Math.max(0, (80 - (Math.abs(coreSkills['Design']['attrs']['y'] - my) / 2)));
+        var buildF = Math.max(0, (80 - (Math.abs(coreSkills['Build']['attrs']['y'] - my) / 2)));
+        var engageF = Math.max(0, (80 - (Math.abs(coreSkills['Engage']['attrs']['y'] - my) / 2)));
+
+        for(f in fElements) {
+            // Try to synch this with bigRed!
+            var r = 10;
+            r += fElements[f].sketchV * sketchF;
+            r += fElements[f].designV * designF;
+            r += fElements[f].buildV * buildF;
+            r += fElements[f].engageV * engageF;
+            fElements[f].animate({path: circlePath(fElements[f]['attrs']['path'][0][1], my, r)}, time, ease);
+        }
     }
 
     document.onmousemove = followMouse;
-        
-
 };
 
 
