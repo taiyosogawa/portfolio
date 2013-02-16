@@ -7,6 +7,7 @@ window.onload = function () {
     var WHITE = '#fff';
     var RED = '#b22222';
     var GRAYBLUE = '#7bb';
+    var DARKBLUE = '#2f6e70';
     var svgWidth = window.innerWidth;
     var svgHeight = window.innerHeight;
     if(svgWidth < svgHeight * 1.8) svgWidth = svgHeight * 1.8;
@@ -20,7 +21,15 @@ window.onload = function () {
     var coreSkillsAttr = {
         'font-family': 'mido',
         'font-size': 40,
-        'fill': '#fff'
+        'fill': '#fff',
+        'cursor': 'default'
+    };
+    var bubbleAttrs = {
+        'fill': BLUE,
+        'opacity': .6,
+        'stroke': WHITE,
+        'stroke-width': 1.2,
+        'cursor': 'pointer'
     };
 
     /*
@@ -45,34 +54,27 @@ window.onload = function () {
             'story': []
     };
 
-    /*
-     * CODE
-     */ 
-
     var bigRed = makeCircle(100, 0, 70, {
         fill: RED,
         opacity: .9,
         stroke: '#fff',
-        'stroke-width': 1.5,
-        'cursor':'pointer'
+        'stroke-width': 1.5
     });
+
+    /*
+     * CODE
+     */ 
 
     //bigRed.drag(move, start, up);
 
-  //  fElements['bus-stop-label'] = r.text(bigRed.x + 170, bigRed.y, 'Bus\nStop').attr(coreSkillsAttr).attr({'font-size': '16'});
+    //fElements['bus-stop-label'] = r.text(bigRed.x + 170, bigRed.y, 'Bus\nStop').attr(coreSkillsAttr).attr({'font-size': '16'});
 
-    bubbles['bus-stop'] = makeCircle(bigRed.x + 170, bigRed.y, 40, {
-        fill: BLUE,
-        opacity: .6,
-        stroke: WHITE,
-        'stroke-width': 1.2,
-        'cursor': 'pointer'
-    });
+    bubbles['bus-stop'] = makeCircle(bigRed.x + 190, bigRed.y, 40, bubbleAttrs);
 
     for(b in bubbles){
         bubbles[b].pname = b;
         fElements[b] = bubbles[b];
-        bubbles[b].hover(glowOn, glowOff);
+        bubbles[b].hover(onBubble, offBubble);
         bubbles[b].click(selectProject);
     }
 
@@ -132,7 +134,6 @@ window.onload = function () {
                 toth += pElements['story'][i].getBBox()['height'];
                 if(tw > bigWidth) bigWidth = tw;
             }
-
             //alert((maxHeight - toth) / i);
             for (var i = 0; i < project['story'].length; i++) pElements['story'][i].remove();
             if ((bigWidth < maxWidth) || (fontSize < 4)) break;
@@ -167,7 +168,6 @@ window.onload = function () {
         if(+(nodeState[this] = !nodeState[this])){
             bigRed.undrag();
             this.cpath = this['attrs']['path'];
-            if(fElements['glow'] != undefined) fElements['glow'].hide();
             createProject(this.pname);
             for(c in coreSkills) coreSkills[c].animate({opacity: 0}, DISP_TIME, 'easeIn');
             panelActive = true;
@@ -178,7 +178,6 @@ window.onload = function () {
         } else {
             bigRed.drag(move, start, up);
             removeProject();
-            window.setTimeout(fElements['glow'].hide(), DISP_TIME);
             window.setTimeout(bigRed.toFront, DISP_TIME);
             for(c in coreSkills) coreSkills[c].animate({opacity: 1}, DISP_TIME, 'easeIn');
             panelActive = false;
@@ -227,18 +226,14 @@ window.onload = function () {
         }
     }
 
-    function glowOn() {
-        if (nodeState[this] != undefined) {
-            if(nodeState[this] == 0) {
-                fElements['glow'] = this.glow({'color': '#fff'});
-                fElements['glow'].x = this.x;
-                fElements['glow'].y = this.y;
-            }
-        }
+    function onBubble() {
+        this.animate({'stroke-width': 7, 'stroke': DARKBLUE}, 600, 'elastic');
     }
 
-    function glowOff() {
-        fElements['glow'].remove();
+    function offBubble() {
+        if(!nodeState[this]){
+            this.animate(bubbleAttrs, 600, 'elastic');
+        }
     }
 
     function makeCircle(x, y, rad, a) {
