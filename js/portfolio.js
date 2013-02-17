@@ -41,12 +41,48 @@ window.onload = function () {
             'name': 'bus-stop',
             'title': 'Bus Stop',
             'story': [
-                'I was looking for a way to make the bus stop a\ndesireable place to be.',
+                'As an industrial design project, I was looking for\na way to make the bus stop a desireable place to be.',
                 'A meditative enclosing could be relaxing, but you\ndon\'t know who you might meet inside.',
                 'I instead opted for a design that makes the most\nof being outdoors.',
                 'The bus stop became a self sustained ecosphere,\npowering its own display and collecting water and\ncompost for its plants.',
                 'The community would be empowered with a\ndisplay of concerted environmental efforts.'
-            ]
+            ],
+            'sketchV': .8,
+            'designV': .2,
+            'buildV': 0,
+            'engageV': 0
+        },
+
+        'nomad': {
+            'name': 'nomad',
+            'title': 'Nomad',
+            'story': [
+                'As a team of engineers and MBAs, we thought\nthere might be a technology need and business\nopportunity for food trucks.',
+                'The truck owner\'s workflow showed that their\nIT was cumbersome and outdated.',
+                'We also found that the food truck industry \nwas growing. It was the market for us.',
+                'After observations, we explored ever user\nsequence at the chalkboard.',
+                'My contribution was building the website, using\nPHP, jQuery, and even OAuth for the first\ntime. A step up from my WildCloud project!'
+            ],
+            'sketchV': .1,
+            'designV': .3,
+            'buildV': .4,
+            'engageV': .2
+        },
+
+        'asb': {
+            'name': 'asb',
+            'title': 'Alternative Student Breaks',
+            'story': [
+                'During one winter break, I volunteered for\nHabitat for Humanity in Mississippi.',
+                'I wanted to get more involved and it was clear\nthat the group needed help with their website.',
+                'I applied to be the Publicity Coordinator and\nstarted hammering out usable code.',
+                'I even did some graphic design. It was a\ncreative outlet for a cause that mattered to me.',
+                'Of course nothing compared getting out in the\ncommunity again; this time leading a trip\nfor new freshmen.'
+            ],
+            'sketchV': .2,
+            'designV': .2,
+            'buildV': .3,
+            'engageV': .3
         }
     };
 
@@ -65,15 +101,20 @@ window.onload = function () {
      * CODE
      */ 
 
-    //bigRed.drag(move, start, up);
+    var plusX = 190;
 
-    //fElements['bus-stop-label'] = r.text(bigRed['attrs']['path'][0][1] + 170, bigRed.y, 'Bus\nStop').attr(coreSkillsAttr).attr({'font-size': '16'});
+    for(p in projects){
+        makeBubble(projects[p], bigRed['attrs']['path'][0][1] + plusX);
+        plusX += 160;
+    }
 
-    bubbles['bus-stop'] = makeCircle(bigRed['attrs']['path'][0][1] + 190, bigRed.y, 40, bubbleAttrs);
-    bubbles['bus-stop'].sketchV = .8;
-    bubbles['bus-stop'].designV = .2;
-    bubbles['bus-stop'].buildV = 0;
-    bubbles['bus-stop'].engageV = 0;
+    function makeBubble(p, x){
+        bubbles[p['name']] = makeCircle(x, bigRed.y, 10, bubbleAttrs);
+        bubbles[p['name']].sketchV = p['sketchV'];
+        bubbles[p['name']].designV = p['designV'];
+        bubbles[p['name']].buildV = p['buildV'];
+        bubbles[p['name']].engageV = p['engageV'];
+    }
 
     for(b in bubbles){
         bubbles[b].pname = b;
@@ -103,13 +144,13 @@ window.onload = function () {
             'stroke': '#222'
         });
 
-        pElements['img'] = r.image('img/' + project['name'] + '0.png', imgX, imgY, imgWidth, imgHeight);
+        pElements['img'] = r.image('img/' + project['title'].replace(/\s+/g, '-').toLowerCase() + '0.png', imgX, imgY, imgWidth, imgHeight);
 
         pElements['title'] = r.text(imgX + imgWidth + margin, 85, project['title']).attr({
             'font-family': 'mido',
             'text-anchor': 'start',
             'fill': '#fff',
-            'font-size': 40,
+            'font-size': 30,
             'cursor': 'default'
         });
 
@@ -123,7 +164,6 @@ window.onload = function () {
         var maxWidth = svgWidth - imgX - imgWidth - margin;
         var maxHeight = svgHeight - pElements['title'].getBBox()['y2'] - 80;
         var fontSize = 22;
-        var txtY = pElements['title'].getBBox()['y2'] + 25;
         var txtX = imgX + imgWidth + margin;
 
         // Calculate correct layouts
@@ -146,7 +186,9 @@ window.onload = function () {
         }
 
         // Actually draw text
-        var txtM = Math.min(35, (maxHeight - toth) / i);
+        var txtY = pElements['title'].getBBox()['y2'] + 40;
+
+        var txtM = Math.min(35, (maxHeight - toth) / i + 1);
         txtY += txtM/2;
         for(i = 0; i < project['story'].length; i++) {
                 pElements['story'][i] = r.text(txtX, txtY, 
@@ -310,20 +352,13 @@ window.onload = function () {
     function followMouse(evt) {
         var my = mouseY(evt);
         //console.log(Math.abs((bigRed['attrs']['path'][0][2]) - my));
-        if((Math.abs((bigRed['attrs']['path'][0][2]) - my) > 42) && (!panelActive)) { 
+        if((Math.abs((bigRed['attrs']['path'][0][2]) - my) > 22) && (!panelActive)) { 
             var mx = mouseX(evt);
             if (mx < 150) {
                 bubbleFollow(my, 250, 'easeOut');
             } else if (mx < 200) {
                 bubbleFollow(my, mx + 100, 'easeOut');
             }
-
-            /* else if (mx < 225) {
-                bubbleFollow(my, 600, 'linear');
-            } else if (mx < 230) {
-                bubbleFollow(my, 750, 'easeOut');
-            }
-            */
         }
     }
 
@@ -344,8 +379,40 @@ window.onload = function () {
             fElements[f].animate({path: circlePath(fElements[f]['attrs']['path'][0][1], my, r)}, time, ease);
         }
     }
-
     document.onmousemove = followMouse;
+
+
+
+    function preloadImages(array) {
+        if (!preloadImages.list) {
+            preloadImages.list = [];
+        }
+        for (var i = 0; i < array.length; i++) {
+            var img = new Image();
+            img.src = array[i];
+            preloadImages.list.push(img);
+        }
+    }
+
+    var imageURLs = [
+        'img/bus-stop0.png',
+        'img/bus-stop1.png',
+        'img/bus-stop2.png',
+        'img/bus-stop3.png',
+        'img/bus-stop4.png',
+        'img/nomad0.png',
+        'img/nomad1.png',
+        'img/nomad2.png',
+        'img/nomad3.png',
+        'img/nomad4.png',
+        'img/asb0.png',
+        'img/asb1.png',
+        'img/asb2.png',
+        'img/asb3.png',
+        'img/asb4.png'
+    ];
+
+    preloadImages(imageURLs);
 };
 
 
