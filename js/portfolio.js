@@ -10,14 +10,14 @@ window.onload = function () {
     var DARKBLUE = '#2f6e70';
     var svgWidth = window.innerWidth;
     var svgHeight = window.innerHeight;
-    if(svgWidth < svgHeight * 1.8) svgWidth = svgHeight * 1.8;
+    if(svgWidth < svgHeight * 1.8) svgHeight = svgWidth / 1.8;
     var r = Raphael('container-div', svgWidth, svgHeight);
     var nodeState = {};
     var fElements = {};
     var bubbles = {};
     var pElements = {};
     var coreSkills = {};
-    var panelActive = false;
+    var activeState = 'home';
     var coreSkillsAttr = {
         'font-family': 'mido',
         'font-size': 40,
@@ -37,49 +37,49 @@ window.onload = function () {
      */
 
      var projects = {
-        'bus-stop': {
-            'name': 'bus-stop',
-            'title': 'Bus Stop',
-            'story': [
-                'As an industrial design project, I was looking for\na way to make the bus stop a desireable place to be.',
-                'A meditative enclosing could be relaxing, but you\ndon\'t know who you might meet inside.',
-                'I instead opted for a design that makes the most\nof being outdoors.',
-                'The bus stop became a self sustained ecosphere,\npowering its own display and collecting water and\ncompost for its plants.',
-                'The community would be empowered with a\ndisplay of concerted environmental efforts.'
-            ],
-            'sketchV': .8,
-            'designV': .2,
-            'buildV': 0,
-            'engageV': 0
-        },
-
         'nomad': {
             'name': 'nomad',
             'title': 'Nomad',
             'story': [
-                'As a team of engineers and MBAs, we thought\nthere might be a technology need and business\nopportunity for food trucks.',
-                'The truck owner\'s workflow showed that their\nIT was cumbersome and outdated.',
+                'As team of engineers and MBAs, we saw\na technology need among food trucks as a business opportunity for us.',
+                'Looking at the truck owner\'s workflow revealed that their\nIT was cumbersome and outdated.',
                 'We also found that the food truck industry \nwas growing. It was the market for us.',
-                'After observations, we explored ever user\nsequence at the chalkboard.',
-                'My contribution was building the website, using\nPHP, jQuery, and even OAuth for the first\ntime. A step up from my WildCloud project!'
+                'Based on observations, we explored every user\nsequence at the chalkboard.',
+                'My contribution was building the website with\nPHP, jQuery, and OAuth. A step up from my WildCloud project.'
             ],
-            'sketchV': .1,
+            'drawV': .1,
             'designV': .3,
             'buildV': .4,
             'engageV': .2
+        },
+
+        'bus-stop': {
+            'name': 'bus-stop',
+            'title': 'Bus Stop',
+            'story': [
+                'For an industrial design project, I was looking for\na way to make the bus stop a desireable place to be.',
+                'A meditative enclosing could be relaxing, but you\ndon\'t know who you might meet inside.',
+                'The design evolved to capitalize on its\nsurroundings rather than closing them off.',
+                'The bus stop became a self sustained ecosphere,\npowering its own display and collecting water and\ncompost for its plants.',
+                'A display of concerted environmental efforts\nwould involve the entire community.' // End with the community here
+            ],
+            'drawV': .8,
+            'designV': .2,
+            'buildV': 0,
+            'engageV': 0
         },
 
         'asb': {
             'name': 'asb',
             'title': 'Alternative Student Breaks',
             'story': [
-                'During one winter break, I volunteered for\nHabitat for Humanity in Mississippi.',
-                'I wanted to get more involved and it was clear\nthat the group needed help with their website.',
-                'I applied to be the Publicity Coordinator and\nstarted hammering out usable code.',
-                'I even did some graphic design. It was a\ncreative outlet for a cause that mattered to me.',
-                'Of course nothing compared getting out in the\ncommunity again; this time leading a trip\nfor new freshmen.'
+                'Through Northwestern Alternative Student Breaks, I volunteered at Habitat for Humanity in Mississippi.',
+                'I wanted to get more involved and \nthat the group needed help with their website.',
+                'I was appointed to be the ASB Publicity Coordinator and\nstarted hammering out usable code.',
+                'I even worked  some graphic design. It was a\ncreative outlet for a cause that mattered to me.',
+                'Of course nothing compared to getting out in the\ncommunity again; this time leading a trip\nfor new freshmen to a school for children with autism in Pittsburgh.'
             ],
-            'sketchV': .2,
+            'drawV': .2,
             'designV': .2,
             'buildV': .3,
             'engageV': .3
@@ -105,12 +105,12 @@ window.onload = function () {
 
     for(p in projects){
         makeBubble(projects[p], bigRed['attrs']['path'][0][1] + plusX);
-        plusX += 160;
+        plusX += 130;
     }
 
     function makeBubble(p, x){
         bubbles[p['name']] = makeCircle(x, bigRed.y, 10, bubbleAttrs);
-        bubbles[p['name']].sketchV = p['sketchV'];
+        bubbles[p['name']].drawV = p['drawV'];
         bubbles[p['name']].designV = p['designV'];
         bubbles[p['name']].buildV = p['buildV'];
         bubbles[p['name']].engageV = p['engageV'];
@@ -123,17 +123,62 @@ window.onload = function () {
         bubbles[b].click(selectProject);
     }
 
-    var name = r.image('img/name.png', svgWidth - 307, svgHeight - 60, 290, 50);
-    coreSkills['Sketch'] = r.text(bigRed['attrs']['path'][0][1], svgHeight / 5, 'sketch').attr(coreSkillsAttr);
+    coreSkills['Draw'] = r.text(bigRed['attrs']['path'][0][1], svgHeight / 5, 'draw').attr(coreSkillsAttr);
     coreSkills['Design'] = r.text(bigRed['attrs']['path'][0][1], 2 * svgHeight / 5, 'design').attr(coreSkillsAttr);
     coreSkills['Build'] = r.text(bigRed['attrs']['path'][0][1], 3 * svgHeight / 5, 'build').attr(coreSkillsAttr);
     coreSkills['Engage'] = r.text(bigRed['attrs']['path'][0][1], 4 * svgHeight / 5, 'engage').attr(coreSkillsAttr);
+
+    var myPanel = r.rect(0, svgHeight, svgWidth, svgHeight - 60).attr({
+        'fill': 'url(img/first_aid_kit.png)'
+    });
+
+ 
+    var navRibbonPath = 'M 30 ' + (-.95 * svgHeight) + ' h 120 v ' + (.95 * svgHeight) + ' l -60 -60 l -60 60 v ' + (-.95 * svgHeight);
+
+    var navRibbon = r.path(navRibbonPath).attr({
+        'fill': 'url(img/ribbon.png)',
+        'stroke': WHITE
+    })
+
+    var name = r.image('img/name.png', svgWidth - 307, svgHeight - 64, 290, 50).attr({'cursor': 'pointer'});
+    name.click(function () {
+        if(activeState == 'home') {
+            activeState = 'aboutMe';
+            for(f in fElements){
+                fElements[f].animate({'opacity': 0}, 800, 'easeIn');
+            }
+            myPanel.toFront();
+            navRibbon.toFront();
+            bigRed.stop().animate({'opacity': 0}, 800, 'easeIn');
+            this.stop().animate({'y': 10}, 800, 'bounce');
+            myPanel.stop().animate({'y': 64}, 800, 'bounce');
+            navRibbonPath = 'M 30 -1 h 120 v ' + (.95 * svgHeight) + ' l -60 -60 l -60 60 v ' + (-.95 * svgHeight);
+        } else if(activeState == 'aboutMe') {
+            activeState = 'home';
+            for(f in fElements){
+                fElements[f].animate({'opacity': .6}, 800, 'easeIn');
+            }
+            bigRed.stop().animate({'opacity': 1}, 800, 'easeIn');
+            this.stop().animate({'y': svgHeight - 64}, 800, 'bounce');
+            myPanel.stop().animate({'y': svgHeight}, 800, 'bounce');
+            navRibbonPath = 'M 30 ' + (-.95 * svgHeight) + ' h 120 v ' + (.95 * svgHeight) + ' l -60 -60 l -60 60 v ' + (-.95 * svgHeight);
+        } else if(activeState == 'project') {
+
+        }
+
+        navRibbon.animate({'path': navRibbonPath}, 800, 'easeOut');
+    });
+
+    /*
+     * FUNCTION DEFINITIONS
+     */
+
 
     function createProject(pname) {
         var project = projects[pname];
 
         var imgHeight = svgHeight - 140;
-        var imgWidth = imgHeight * 1.61;
+        var imgWidth = imgHeight * 1.55;
         var imgX = 30;
         var imgY = 70;
         var margin = 20;
@@ -161,8 +206,8 @@ window.onload = function () {
             'cursor': 'default'
         };
 
-        var maxWidth = svgWidth - imgX - imgWidth - margin;
-        var maxHeight = svgHeight - pElements['title'].getBBox()['y2'] - 80;
+        var maxWidth = svgWidth - imgX - imgWidth - margin - 15;
+        var maxHeight = svgHeight - pElements['title'].getBBox()['y2'] - 105;
         var fontSize = 22;
         var txtX = imgX + imgWidth + margin;
 
@@ -173,27 +218,25 @@ window.onload = function () {
             var toth = 0;
             var i;
             for(i = 0; i < project['story'].length; i++) {
-                pElements['story'][i] = r.text(txtX, txtY, 
-                project['story'][i]).attr(textAttr).attr({'font-size': fontSize}).hover(onTxt, offTxt);
+                pElements['story'][i] = r.text(txtX, txtY, project['story'][i]).attr(textAttr).attr({'font-size': fontSize});
                 tw = pElements['story'][i].getBBox()['width'];
                 toth += pElements['story'][i].getBBox()['height'];
                 if(tw > bigWidth) bigWidth = tw;
             }
-            //alert((maxHeight - toth) / i);
             for (var i = 0; i < project['story'].length; i++) pElements['story'][i].remove();
             if ((bigWidth < maxWidth) || (fontSize < 4)) break;
             else fontSize -= 1;
         }
 
         // Actually draw text
-        var txtY = pElements['title'].getBBox()['y2'] + 40;
+        var txtY = pElements['title'].getBBox()['y2'] + 50;
 
-        var txtM = Math.min(35, (maxHeight - toth) / i + 1);
-        txtY += txtM/2;
+        var txtM = Math.min(100, maxHeight / i);
+       // txtY += txtM/2;
         for(i = 0; i < project['story'].length; i++) {
                 pElements['story'][i] = r.text(txtX, txtY, 
-                project['story'][i]).attr(textAttr).attr({'font-size': fontSize}).hover(onTxt, offTxt);
-                txtY += pElements['story'][i].getBBox()['height'] + txtM;
+                project['story'][i]).attr(textAttr).attr({'font-size': fontSize}).hover(onTxt, offTxt); // set a timeout here??
+               txtY += txtM;
         }
 
         pElements['story'][0].attr({'fill':'#fff'});
@@ -217,7 +260,6 @@ window.onload = function () {
             this.cpath = this['attrs']['path'];
             createProject(this.pname);
             for(c in coreSkills) coreSkills[c].animate({opacity: 0}, DISP_TIME, 'easeIn');
-            panelActive = true;
             this.stop().animate({
                 path: panelPath( 8, 25, svgWidth - 20, svgHeight - 50, 6, 6),
                 opacity: 1}, DISP_TIME, 'easeIn'
@@ -227,7 +269,7 @@ window.onload = function () {
             removeProject();
             window.setTimeout(bigRed.toFront, DISP_TIME);
             for(c in coreSkills) coreSkills[c].animate({opacity: 1}, DISP_TIME, 'easeIn');
-            panelActive = false;
+            activeState = 'home';
             this.stop().animate({
                 path: this.cpath,
                 opacity: .7}, DISP_TIME + 100, 'easeOut'
@@ -237,13 +279,15 @@ window.onload = function () {
     }
 
     function onTxt() {
-        pElements['img'].attr({
-            'src': 'img/' + pElements['title']['attrs']['text'].replace(/\s+/g, '-').toLowerCase() + pElements['story'].indexOf(this) + '.png'
-        });
-        for(var i = 0; i < pElements['story'].length; i++) {
-            pElements['story'][i].stop().animate({'fill': GRAYBLUE}, 400, 'easeIn');
+        if(activeState == 'project') {
+            pElements['img'].attr({
+                'src': 'img/' + pElements['title']['attrs']['text'].replace(/\s+/g, '-').toLowerCase() + pElements['story'].indexOf(this) + '.png'
+            });
+            for(var i = 0; i < pElements['story'].length; i++) {
+                pElements['story'][i].stop().animate({'fill': GRAYBLUE}, 400, 'easeIn');
+            }
+            this.stop().animate({'fill': '#fff'}, 400, 'easeIn');
         }
-        this.stop().animate({'fill': '#fff'}, 400, 'easeIn');
     }
 
     function offTxt() {
@@ -259,6 +303,7 @@ window.onload = function () {
                 pElements[p].animate({opacity: 1}, DISP_TIME / 2, 'easeIn');
             }
         }
+        window.setTimeout(function () {activeState = 'project';}, DISP_TIME/2);
     }
 
     function removeProject() {
@@ -351,8 +396,7 @@ window.onload = function () {
 
     function followMouse(evt) {
         var my = mouseY(evt);
-        //console.log(Math.abs((bigRed['attrs']['path'][0][2]) - my));
-        if((Math.abs((bigRed['attrs']['path'][0][2]) - my) > 22) && (!panelActive)) { 
+        if((Math.abs((bigRed['attrs']['path'][0][2]) - my) > 22) && (activeState == 'home')) { 
             var mx = mouseX(evt);
             if (mx < 150) {
                 bubbleFollow(my, 250, 'easeOut');
@@ -364,7 +408,7 @@ window.onload = function () {
 
     function bubbleFollow(my, time, ease) {
         bigRed.stop().animate({path: circlePath(bigRed['attrs']['path'][0][1], my, 70)}, time, ease);
-        var sketchF = Math.max(0, (80 - (Math.abs(coreSkills['Sketch']['attrs']['y'] - my) / 2)));
+        var drawF = Math.max(0, (80 - (Math.abs(coreSkills['Draw']['attrs']['y'] - my) / 2)));
         var designF = Math.max(0, (80 - (Math.abs(coreSkills['Design']['attrs']['y'] - my) / 2)));
         var buildF = Math.max(0, (80 - (Math.abs(coreSkills['Build']['attrs']['y'] - my) / 2)));
         var engageF = Math.max(0, (80 - (Math.abs(coreSkills['Engage']['attrs']['y'] - my) / 2)));
@@ -372,7 +416,7 @@ window.onload = function () {
         for(f in fElements) {
             // Try to synch this with bigRed!
             var r = 10;
-            r += fElements[f].sketchV * sketchF;
+            r += fElements[f].drawV * drawF;
             r += fElements[f].designV * designF;
             r += fElements[f].buildV * buildF;
             r += fElements[f].engageV * engageF;
@@ -380,8 +424,6 @@ window.onload = function () {
         }
     }
     document.onmousemove = followMouse;
-
-
 
     function preloadImages(array) {
         if (!preloadImages.list) {
@@ -405,19 +447,33 @@ window.onload = function () {
         'img/nomad2.png',
         'img/nomad3.png',
         'img/nomad4.png',
-        'img/asb0.png',
-        'img/asb1.png',
-        'img/asb2.png',
-        'img/asb3.png',
-        'img/asb4.png'
+        'img/alternative-student-breaks0.png',
+        'img/alternative-student-breaks1.png',
+        'img/alternative-student-breaks2.png',
+        'img/alternative-student-breaks3.png',
+        'img/alternative-student-breaks4.png'
     ];
 
     preloadImages(imageURLs);
+
+
 };
 
 
+/*
+    TODO
+    -Dynamically size Title
+    -Have story points align correctly horizontally
+    -Have story points align correctly vertically
+    -Have SVG scale correctly to window size -- have scroll bars appear if necessary. Don't have svg exceed the screen size (unless window size exceeds screen size)
+    -Design philosophy jumps up when clicking on name
+    -An easier way to transition from project back to the main screen 
+    -Labels for each project
+    -LinkedIn, GitHub links
+    -
 
 
+    Consider having onmousemove update a variable and create an infinite loop that checks that variable!!
+*/
 
 
-                    
