@@ -2,7 +2,7 @@ window.onload = function () {
     /*
      * CONSTANTS
      */
-    var DISP_TIME = 650;
+    var DISP_TIME = 800;
     var BLUE = '#5f9ea0';
     var WHITE = '#fff';
     var RED = '#b22222';
@@ -12,12 +12,12 @@ window.onload = function () {
     var svgHeight = window.innerHeight;
     if(svgWidth < svgHeight * 1.8) svgHeight = svgWidth / 1.8;
     var r = Raphael('container-div', svgWidth, svgHeight);
-    var nodeState = {};
-    var fElements = {};
     var bubbles = {};
     var pElements = {};
     var coreSkills = {};
     var activeState = 'home';
+    var activeBubble;
+    var activeProject;
     var coreSkillsAttr = {
         'font-family': 'mido',
         'font-size': 40,
@@ -26,10 +26,16 @@ window.onload = function () {
     };
     var bubbleAttrs = {
         'fill': BLUE,
-        'opacity': .6,
-        'stroke': WHITE,
-        'stroke-width': 1.2,
+        'opacity': .5,
+        'stroke': DARKBLUE,
+        'stroke-width': 1.5,
         'cursor': 'pointer'
+    };
+    var bigRedAttrs = {
+        fill: RED,
+        opacity: .9,
+        stroke: WHITE,
+        'stroke-width': 1.5
     };
 
     /*
@@ -41,11 +47,11 @@ window.onload = function () {
             'name': 'nomad',
             'title': 'Nomad',
             'story': [
-                'As team of engineers and MBAs, we saw\na technology need among food trucks as a business opportunity for us.',
+                'A team of engineers and MBAs, we saw a technology\nneed among food trucks as a business opportunity for us.',
                 'Looking at the truck owner\'s workflow revealed that their\nIT was cumbersome and outdated.',
                 'We also found that the food truck industry \nwas growing. It was the market for us.',
                 'Based on observations, we explored every user\nsequence at the chalkboard.',
-                'My contribution was building the website with\nPHP, jQuery, and OAuth. A step up from my WildCloud project.'
+                'My contribution was building the website with PHP,\njQuery, and OAuth. A step up from my WildCloud project.'
             ],
             'drawV': .1,
             'designV': .3,
@@ -90,12 +96,7 @@ window.onload = function () {
             'story': []
     };
 
-    var bigRed = makeCircle(100, 0, 70, {
-        fill: RED,
-        opacity: .9,
-        stroke: '#fff',
-        'stroke-width': 1.5
-    });
+    var bigRed = makeCircle(100, 0, 70, bigRedAttrs);
 
     /*
      * CODE
@@ -108,18 +109,15 @@ window.onload = function () {
         plusX += 130;
     }
 
-    function makeBubble(p, x){
-        bubbles[p['name']] = makeCircle(x, bigRed.y, 10, bubbleAttrs);
-        bubbles[p['name']].drawV = p['drawV'];
-        bubbles[p['name']].designV = p['designV'];
-        bubbles[p['name']].buildV = p['buildV'];
-        bubbles[p['name']].engageV = p['engageV'];
-    }
-
     for(b in bubbles){
         bubbles[b].pname = b;
-        fElements[b] = bubbles[b];
-        bubbles[b].hover(onBubble, offBubble);
+        bubbles[b].hover(function () {
+            this.animate({'stroke-width': 7}, 600, 'elastic');}, 
+            function () {
+                if(activeState == 'home'){
+                    this.animate(bubbleAttrs, 600, 'elastic');
+                }
+            });
         bubbles[b].click(selectProject);
     }
 
@@ -144,43 +142,84 @@ window.onload = function () {
     name.click(function () {
         if(activeState == 'home') {
             activeState = 'aboutMe';
-            for(f in fElements){
-                fElements[f].animate({'opacity': 0}, 800, 'easeIn');
+            for(b in bubbles){
+                bubbles[b].animate({'opacity': 0}, DISP_TIME, 'easeIn');
             }
             myPanel.toFront();
             navRibbon.toFront();
-            bigRed.stop().animate({'opacity': 0}, 800, 'easeIn');
-            this.stop().animate({'y': 10}, 800, 'bounce');
-            myPanel.stop().animate({'y': 64}, 800, 'bounce');
+            bigRed.stop().animate({'opacity': 0}, DISP_TIME, 'easeIn');
+            this.stop().animate({'y': 10}, DISP_TIME, 'bounce');
+            myPanel.stop().animate({'y': 64}, DISP_TIME, 'bounce');
             navRibbonPath = 'M 30 -1 h 120 v ' + (.95 * svgHeight) + ' l -60 -60 l -60 60 v ' + (-.95 * svgHeight);
         } else if(activeState == 'aboutMe') {
-            activeState = 'home';
-            for(f in fElements){
-                fElements[f].animate({'opacity': .6}, 800, 'easeIn');
+            changeToHome();
+            for(b in bubbles){
+                bubbles[b].animate(bubbleAttrs, DISP_TIME, 'easeIn');
             }
-            bigRed.stop().animate({'opacity': 1}, 800, 'easeIn');
-            this.stop().animate({'y': svgHeight - 64}, 800, 'bounce');
-            myPanel.stop().animate({'y': svgHeight}, 800, 'bounce');
+            bigRed.stop().animate(bigRedAttrs, DISP_TIME, 'easeIn');
+            this.stop().animate({'y': svgHeight - 64}, DISP_TIME, 'bounce');
+            myPanel.stop().animate({'y': svgHeight}, DISP_TIME, 'bounce');
             navRibbonPath = 'M 30 ' + (-.95 * svgHeight) + ' h 120 v ' + (.95 * svgHeight) + ' l -60 -60 l -60 60 v ' + (-.95 * svgHeight);
         } else if(activeState == 'project') {
-
+            changeToHome();
+            for(p in pElements) {
+                if(p == 'story'){
+                    for(s in pElements[p]) {
+                        pElements[p][s].remove();
+                    }
+                } else {
+                    pElements[p].remove();
+                }
+            }
+            for(c in coreSkills) coreSkills[c].animate({opacity: 1}, DISP_TIME, 'easeIn');
+            bigRed.stop().animate(bigRedAttrs, DISP_TIME, 'easeIn');
+            activeBubble.stop().animate({path: activeBubble.cpath, 'stroke-width': 1.5}, DISP_TIME, 'easeIn');
+            activeBubble.attr({'cursor': 'pointer'});
         }
-
-        navRibbon.animate({'path': navRibbonPath}, 800, 'easeOut');
+        navRibbon.animate({'path': navRibbonPath}, DISP_TIME, 'easeOut');
     });
 
     /*
      * FUNCTION DEFINITIONS
      */
 
+    function makeBubble(p, x){
+        bubbles[p['name']] = makeCircle(x, bigRed.y, 10, bubbleAttrs);
+        bubbles[p['name']].drawV = p['drawV'];
+        bubbles[p['name']].designV = p['designV'];
+        bubbles[p['name']].buildV = p['buildV'];
+        bubbles[p['name']].engageV = p['engageV'];
+    }
+
+    function selectProject() {
+        if(activeState == 'home') {
+            activeState = 'toProject';
+            activeBubble = this;
+            this.toFront();
+            this.cpath = this['attrs']['path'];
+            this.attr({'cursor': 'default'});
+            createProject(this.pname);
+            for(c in coreSkills) coreSkills[c].animate({opacity: 0}, DISP_TIME, 'easeIn');
+            bigRed.animate({opacity: 0}, DISP_TIME, 'easeIn');
+            this.stop().animate({path: panelPath( 8, 25, svgWidth - 20, svgHeight - 50, 6, 6)}, DISP_TIME, 'easeIn');
+        }
+    }
 
     function createProject(pname) {
         var project = projects[pname];
-
         var imgHeight = svgHeight - 140;
-        var imgWidth = imgHeight * 1.55;
-        var imgX = 30;
-        var imgY = 70;
+        var imgWidth = Math.min(Math.min(imgHeight * 1.55, svgWidth / 1.6), svgWidth - 400);
+        imgHeight = imgWidth / 1.55;
+
+        var imgX = 100;
+        if(imgWidth + imgX + 340 > svgWidth) {
+            imgX = 30;
+        } else {
+            // Make bubbles here
+
+        }
+
+        var imgY = (svgHeight - imgHeight) / 2;
         var margin = 20;
 
         pElements['img-frame'] = r.rect(imgX, imgY, imgWidth, imgHeight).attr({
@@ -191,14 +230,6 @@ window.onload = function () {
 
         pElements['img'] = r.image('img/' + project['title'].replace(/\s+/g, '-').toLowerCase() + '0.png', imgX, imgY, imgWidth, imgHeight);
 
-        pElements['title'] = r.text(imgX + imgWidth + margin, 85, project['title']).attr({
-            'font-family': 'mido',
-            'text-anchor': 'start',
-            'fill': '#fff',
-            'font-size': 30,
-            'cursor': 'default'
-        });
-
         var textAttr = {
             'font-family': 'Roboto Condensed',
             'text-anchor': 'start',
@@ -206,36 +237,74 @@ window.onload = function () {
             'cursor': 'default'
         };
 
+        var titleAttr = {
+            'font-family': 'mido',
+            'text-anchor': 'start',
+            'fill': '#fff',
+            'cursor': 'default'
+        };
+
         var maxWidth = svgWidth - imgX - imgWidth - margin - 15;
-        var maxHeight = svgHeight - pElements['title'].getBBox()['y2'] - 105;
-        var fontSize = 22;
+        
+        var fontSize = 30;
         var txtX = imgX + imgWidth + margin;
+
+         while(true) {
+            var i;
+            var story;
+            var storyWidth;
+            story = r.text(txtX, 0, project['title']).attr(titleAttr).attr({'font-size': fontSize});
+            storyWidth = story.getBBox()['width'];
+            story.remove();
+            if(storyWidth > maxWidth) fontSize -= 1;
+            else break;
+        }
+
+        pElements['title'] = r.text(imgX + imgWidth + margin, 85, project['title']).attr(titleAttr).attr({'font-size': fontSize});
+
+        var maxHeight = svgHeight - pElements['title'].getBBox()['y2'] - 105;
+        fontSize = 22;
 
         // Calculate correct layouts
         while(true) {
-            var bigWidth = 0;
-            var tw = 0;
-            var toth = 0;
+
             var i;
+            var story;
+            var storyWidth;
+            
+            var toth = 0;
             for(i = 0; i < project['story'].length; i++) {
-                pElements['story'][i] = r.text(txtX, txtY, project['story'][i]).attr(textAttr).attr({'font-size': fontSize});
-                tw = pElements['story'][i].getBBox()['width'];
-                toth += pElements['story'][i].getBBox()['height'];
-                if(tw > bigWidth) bigWidth = tw;
+                story = r.text(txtX, 0, project['story'][i]).attr(textAttr).attr({'font-size': fontSize});
+                storyWidth = story.getBBox()['width'];
+                toth += story.getBBox()['height'];
+                story.remove();
+                if(storyWidth > maxWidth) {
+                    fontSize -= 1;
+                    break;
+                }
             }
-            for (var i = 0; i < project['story'].length; i++) pElements['story'][i].remove();
-            if ((bigWidth < maxWidth) || (fontSize < 4)) break;
-            else fontSize -= 1;
+            if((i == project['story'].length) || (fontSize < 4)) {
+                break;
+            }
         }
 
         // Actually draw text
-        var txtY = pElements['title'].getBBox()['y2'] + 50;
+        var txtY = pElements['title'].getBBox()['y2'] + Math.min(50, 20 + (maxHeight - toth) / i);
 
         var txtM = Math.min(100, maxHeight / i);
-       // txtY += txtM/2;
         for(i = 0; i < project['story'].length; i++) {
                 pElements['story'][i] = r.text(txtX, txtY, 
-                project['story'][i]).attr(textAttr).attr({'font-size': fontSize}).hover(onTxt, offTxt); // set a timeout here??
+                project['story'][i]).attr(textAttr).attr({'font-size': fontSize}).hover(function () {
+                    if(activeState == 'project') {
+                        pElements['img'].attr({
+                            'src': 'img/' + pElements['title']['attrs']['text'].replace(/\s+/g, '-').toLowerCase() + pElements['story'].indexOf(this) + '.png'
+                        });
+                        for(var i = 0; i < pElements['story'].length; i++) {
+                            pElements['story'][i].stop().animate({'fill': GRAYBLUE}, 400, 'easeIn');
+                        }
+                        this.stop().animate({'fill': '#fff'}, 400, 'easeIn');
+                    }
+                }, function(){});
                txtY += txtM;
         }
 
@@ -253,45 +322,6 @@ window.onload = function () {
         window.setTimeout(showProject, DISP_TIME);
     }
 
-    function selectProject() {
-        this.toFront();
-        if(+(nodeState[this] = !nodeState[this])){
-            bigRed.undrag();
-            this.cpath = this['attrs']['path'];
-            createProject(this.pname);
-            for(c in coreSkills) coreSkills[c].animate({opacity: 0}, DISP_TIME, 'easeIn');
-            this.stop().animate({
-                path: panelPath( 8, 25, svgWidth - 20, svgHeight - 50, 6, 6),
-                opacity: 1}, DISP_TIME, 'easeIn'
-            );
-        } else {
-            bigRed.drag(move, start, up);
-            removeProject();
-            window.setTimeout(bigRed.toFront, DISP_TIME);
-            for(c in coreSkills) coreSkills[c].animate({opacity: 1}, DISP_TIME, 'easeIn');
-            activeState = 'home';
-            this.stop().animate({
-                path: this.cpath,
-                opacity: .7}, DISP_TIME + 100, 'easeOut'
-            );
-        }
-        
-    }
-
-    function onTxt() {
-        if(activeState == 'project') {
-            pElements['img'].attr({
-                'src': 'img/' + pElements['title']['attrs']['text'].replace(/\s+/g, '-').toLowerCase() + pElements['story'].indexOf(this) + '.png'
-            });
-            for(var i = 0; i < pElements['story'].length; i++) {
-                pElements['story'][i].stop().animate({'fill': GRAYBLUE}, 400, 'easeIn');
-            }
-            this.stop().animate({'fill': '#fff'}, 400, 'easeIn');
-        }
-    }
-
-    function offTxt() {
-    }
 
     function showProject() {
         for(p in pElements) {
@@ -306,27 +336,6 @@ window.onload = function () {
         window.setTimeout(function () {activeState = 'project';}, DISP_TIME/2);
     }
 
-    function removeProject() {
-        for(p in pElements) {
-            if(p == 'story'){
-                for(s in pElements[p]) {
-                    pElements[p][s].remove();
-                }
-            } else {
-                pElements[p].remove();
-            }
-        }
-    }
-
-    function onBubble() {
-        this.animate({'stroke-width': 7, 'stroke': DARKBLUE}, 600, 'elastic');
-    }
-
-    function offBubble() {
-        if(!nodeState[this]){
-            this.animate(bubbleAttrs, 600, 'elastic');
-        }
-    }
 
     function makeCircle(x, y, rad, a) {
         var p = circlePath(x, y, rad);
@@ -334,7 +343,6 @@ window.onload = function () {
         circle.cpath = p;
 
         circle.y = y;
-        nodeState[circle] = 0;
         return circle;
     }
 
@@ -372,24 +380,10 @@ window.onload = function () {
         return string;
     }
 
-    // Functions for dragging paths
-    function start() {
-        this.ody = 0;
+    function changeToHome() {
+        activeState = 'toHome';
+        window.setTimeout(function() {activeState = 'home';}, DISP_TIME);
     }
-
-    function move(dx, dy) {
-        bigRed.stop().animate({path: circlePath(bigRed['attrs']['path'][0][1], this.ody, 70)}, 500, 'easeOut');
-        for(f in fElements) {
-            fElements[f].stop().animate({path: circlePath(fElements[f]['attrs']['path'][0][1], this.ody, 40)}, 500, 'easeOut');
-        }
-        this.ody = dy;
-    }
-    function up() {
-        this.y += this.ody;
-        for(f in fElements) {
-            fElements[f].y += this.ody;
-        }
-    };
 
     function mouseX(evt) {if (!evt) evt = window.event; if (evt.pageX) return evt.pageX; else if (evt.clientX)return evt.clientX + (document.documentElement.scrollLeft ?  document.documentElement.scrollLeft : document.body.scrollLeft); else return 0;}
     function mouseY(evt) {if (!evt) evt = window.event; if (evt.pageY) return evt.pageY; else if (evt.clientY)return evt.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop); else return 0;}
@@ -413,14 +407,14 @@ window.onload = function () {
         var buildF = Math.max(0, (80 - (Math.abs(coreSkills['Build']['attrs']['y'] - my) / 2)));
         var engageF = Math.max(0, (80 - (Math.abs(coreSkills['Engage']['attrs']['y'] - my) / 2)));
 
-        for(f in fElements) {
+        for(b in bubbles) {
             // Try to synch this with bigRed!
             var r = 10;
-            r += fElements[f].drawV * drawF;
-            r += fElements[f].designV * designF;
-            r += fElements[f].buildV * buildF;
-            r += fElements[f].engageV * engageF;
-            fElements[f].animate({path: circlePath(fElements[f]['attrs']['path'][0][1], my, r)}, time, ease);
+            r += bubbles[b].drawV * drawF;
+            r += bubbles[b].designV * designF;
+            r += bubbles[b].buildV * buildF;
+            r += bubbles[b].engageV * engageF;
+            bubbles[b].animate({path: circlePath(bubbles[b]['attrs']['path'][0][1], my, r)}, time, ease);
         }
     }
     document.onmousemove = followMouse;
@@ -477,3 +471,25 @@ window.onload = function () {
 */
 
 
+/* bigRed drag functions
+
+  // Functions for dragging paths
+    function start() {
+        this.ody = 0;
+    }
+
+    function move(dx, dy) {
+        bigRed.stop().animate({path: circlePath(bigRed['attrs']['path'][0][1], this.ody, 70)}, 500, 'easeOut');
+        for(b in bubbles) {
+            bubbles[b].stop().animate({path: circlePath(bubbles[b]['attrs']['path'][0][1], this.ody, 40)}, 500, 'easeOut');
+        }
+        this.ody = dy;
+    }
+    function up() {
+        this.y += this.ody;
+        for(b in bubbles) {
+            bubbles[b].y += this.ody;
+        }
+    };
+
+*/
