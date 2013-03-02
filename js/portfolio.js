@@ -6,14 +6,17 @@ window.onload = function () {
     var BLUE = '#5f9ea0';
     var WHITE = '#fff';
     var RED = '#b22222';
+    var DARKRED = '#900000';
     var GRAYBLUE = '#7bb';
     var DARKBLUE = '#2f6e70';
-    var svgWidth = window.innerWidth;
+    var svgWidth = Math.max(window.innerWidth, screen.width - 400);
     var svgHeight = window.innerHeight;
     if(svgWidth < svgHeight * 1.8) svgHeight = svgWidth / 1.8;
     var r = Raphael('container-div', svgWidth, svgHeight);
     var bubbles = {};
+    var bubbleLabels = {};
     var pElements = {};
+    var mElements = {};
     var coreSkills = {};
     var activeState = 'home';
     var activeBubble;
@@ -34,21 +37,74 @@ window.onload = function () {
     var bigRedAttrs = {
         fill: RED,
         opacity: .9,
-        stroke: WHITE,
+        stroke: DARKRED,
         'stroke-width': 1.5
+    };
+    var titleAttrs = {
+        'font-family': 'mido',
+        'text-anchor': 'start',
+        'fill': '#fff',
+        'cursor': 'default',
+        'font-size': 30
+    };
+    var textAttrs = {
+        'font-family': 'Roboto Condensed',
+        'text-anchor': 'start',
+        'fill': GRAYBLUE,
+        'cursor': 'default',
+        'font-size': 22
     };
 
     /*
      * PROJECTS
      */
 
+    var designPhilosophy = 'In my sophomore year of college, I worked on a play about Richard Feynman, who famously wrote,\n"What \
+    I cannot create, I do not understand." In many ways I am passionate about the same values\nas Feynman; making your knowledge \
+    accessible to others, exploring other cultures and worldviews,\nand pushing the limits of your own understanding (for fun if \
+    nothing else). However, while Feynman\nwas a scientist, I am a designer, so my philosophy must start with creation. To drive \
+    that creation,\nI believe that a well designed product--whether an object, system, or otherwise--requires an intimate\nunderstanding \
+    of the associated purpose, people, and possibilities.';
+
      var projects = {
-        'nomad': {
-            'name': 'nomad',
+        'Pulley Chair': {
+            'name': 'Pulley Chair',
+            'title': 'Alternative Student Breaks',
+            'story': [
+                'Through Northwestern Alternative Student Breaks,\nI volunteered at Habitat for Humanity in Mississippi.',
+                'I wanted to get more involved and I saw that\n the group needed help with their website.',
+                'I was appointed to be the ASB Publicity Coordinator\nand started working out usable code.',
+                'I even practiced some graphic design. It was a\ncreative outlet for a cause that mattered to me.',
+                'Of course nothing compared to getting on the road\nagain; this time leading a trip for new freshmen\nto a school for children with autism in Pittsburgh.'
+            ],
+            'drawV': .2,
+            'designV': .3,
+            'buildV': .3,
+            'engageV': .2
+        },
+
+        'WildCloud': {
+            'name': 'WildCloud',
+            'title': 'Alternative Student Breaks',
+            'story': [
+                'Through Northwestern Alternative Student Breaks,\nI volunteered at Habitat for Humanity in Mississippi.',
+                'I wanted to get more involved and I saw that\n the group needed help with their website.',
+                'I was appointed to be the ASB Publicity Coordinator\nand started working out usable code.',
+                'I even practiced some graphic design. It was a\ncreative outlet for a cause that mattered to me.',
+                'Of course nothing compared to getting on the road\nagain; this time leading a trip for new freshmen\nto a school for children with autism in Pittsburgh.'
+            ],
+            'drawV': .1,
+            'designV': .6,
+            'buildV': .3,
+            'engageV': .1
+        },
+
+        'Nomad': {
+            'name': 'Nomad',
             'title': 'Nomad',
             'story': [
                 'A team of engineers and MBAs, we saw a technology\nneed among food trucks as a business opportunity for us.',
-                'Looking at the truck owner\'s workflow revealed that their\nIT was cumbersome and outdated.',
+                'The truck owner\'s workflow revealed that their\nIT was cumbersome and outdated.',
                 'We also found that the food truck industry \nwas growing. It was the market for us.',
                 'Based on observations, we explored every user\nsequence at the chalkboard.',
                 'My contribution was building the website with PHP,\njQuery, and OAuth. A step up from my WildCloud project.'
@@ -59,15 +115,15 @@ window.onload = function () {
             'engageV': .2
         },
 
-        'bus-stop': {
-            'name': 'bus-stop',
+        'Bus Stop': {
+            'name': 'Bus Stop',
             'title': 'Bus Stop',
             'story': [
                 'For an industrial design project, I was looking for\na way to make the bus stop a desireable place to be.',
                 'A meditative enclosing could be relaxing, but you\ndon\'t know who you might meet inside.',
                 'The design evolved to capitalize on its\nsurroundings rather than closing them off.',
-                'The bus stop became a self sustained ecosphere,\npowering its own display and collecting water and\ncompost for its plants.',
-                'A display of concerted environmental efforts\nwould involve the entire community.' // End with the community here
+                'It eventually became a self sustained ecosphere,\npowering its own display and collecting water and\ncompost for its plants.',
+                'A display of concerted environmental efforts\nwould involve the entire community.'
             ],
             'drawV': .8,
             'designV': .2,
@@ -75,20 +131,36 @@ window.onload = function () {
             'engageV': 0
         },
 
-        'asb': {
-            'name': 'asb',
+        'ASB': {
+            'name': 'ASB',
             'title': 'Alternative Student Breaks',
             'story': [
-                'Through Northwestern Alternative Student Breaks, I volunteered at Habitat for Humanity in Mississippi.',
-                'I wanted to get more involved and \nthat the group needed help with their website.',
-                'I was appointed to be the ASB Publicity Coordinator and\nstarted hammering out usable code.',
-                'I even worked  some graphic design. It was a\ncreative outlet for a cause that mattered to me.',
-                'Of course nothing compared to getting out in the\ncommunity again; this time leading a trip\nfor new freshmen to a school for children with autism in Pittsburgh.'
+                'Through Northwestern Alternative Student Breaks,\nI volunteered at Habitat for Humanity in Mississippi.',
+                'I wanted to get more involved and I saw that\n the group needed help with their website.',
+                'I was appointed to be the ASB Publicity Coordinator\nand started working out usable code.',
+                'I even practiced some graphic design. It was a\ncreative outlet for a cause that mattered to me.',
+                'Of course nothing compared to getting on the road\nagain; this time leading a trip for new freshmen\nto a school for children with autism in Pittsburgh.'
             ],
             'drawV': .2,
-            'designV': .2,
+            'designV': 0,
             'buildV': .3,
-            'engageV': .3
+            'engageV': .5
+        },
+
+        'Brad Box': {
+            'name': 'Brad Box',
+            'title': 'Alternative Student Breaks',
+            'story': [
+                'Through Northwestern Alternative Student Breaks,\nI volunteered at Habitat for Humanity in Mississippi.',
+                'I wanted to get more involved and I saw that\n the group needed help with their website.',
+                'I was appointed to be the ASB Publicity Coordinator\nand started working out usable code.',
+                'I even practiced some graphic design. It was a\ncreative outlet for a cause that mattered to me.',
+                'Of course nothing compared to getting on the road\nagain; this time leading a trip for new freshmen\nto a school for children with autism in Pittsburgh.'
+            ],
+            'drawV': .1,
+            'designV': .3,
+            'buildV': .5,
+            'engageV': .1
         }
     };
 
@@ -106,7 +178,7 @@ window.onload = function () {
 
     for(p in projects){
         makeBubble(projects[p], bigRed['attrs']['path'][0][1] + plusX);
-        plusX += 130;
+        plusX += 145;
     }
 
     for(b in bubbles){
@@ -142,35 +214,30 @@ window.onload = function () {
     name.click(function () {
         if(activeState == 'home') {
             activeState = 'aboutMe';
-            for(b in bubbles){
-                bubbles[b].animate({'opacity': 0}, DISP_TIME, 'easeIn');
-            }
+            for(b in bubbles) bubbles[b].animate({'opacity': 0}, DISP_TIME, 'easeIn');
+            for(bl in bubbleLabels) bubbleLabels[bl].animate({'opacity': 0}, DISP_TIME, 'easeIn');
             myPanel.toFront();
             navRibbon.toFront();
             bigRed.stop().animate({'opacity': 0}, DISP_TIME, 'easeIn');
             this.stop().animate({'y': 10}, DISP_TIME, 'bounce');
             myPanel.stop().animate({'y': 64}, DISP_TIME, 'bounce');
             navRibbonPath = 'M 30 -1 h 120 v ' + (.95 * svgHeight) + ' l -60 -60 l -60 60 v ' + (-.95 * svgHeight);
+            window.setTimeout(createAboutMe, DISP_TIME/2);
         } else if(activeState == 'aboutMe') {
             changeToHome();
-            for(b in bubbles){
-                bubbles[b].animate(bubbleAttrs, DISP_TIME, 'easeIn');
-            }
+            destroyPElements();
+            for(b in bubbles) bubbles[b].animate(bubbleAttrs, DISP_TIME, 'easeIn');
+            for(bl in bubbleLabels) bubbleLabels[bl].animate({'opacity': 1}, DISP_TIME, 'easeIn');
+            for(m in mElements) mElements[m].remove();
             bigRed.stop().animate(bigRedAttrs, DISP_TIME, 'easeIn');
             this.stop().animate({'y': svgHeight - 64}, DISP_TIME, 'bounce');
             myPanel.stop().animate({'y': svgHeight}, DISP_TIME, 'bounce');
             navRibbonPath = 'M 30 ' + (-.95 * svgHeight) + ' h 120 v ' + (.95 * svgHeight) + ' l -60 -60 l -60 60 v ' + (-.95 * svgHeight);
         } else if(activeState == 'project') {
             changeToHome();
-            for(p in pElements) {
-                if(p == 'story'){
-                    for(s in pElements[p]) {
-                        pElements[p][s].remove();
-                    }
-                } else {
-                    pElements[p].remove();
-                }
-            }
+            destroyPElements();
+            for(b in bubbles) bubbles[b].animate(bubbleAttrs, DISP_TIME, 'easeIn');
+            for(bl in bubbleLabels) bubbleLabels[bl].animate({'opacity': 1}, DISP_TIME, 'easeIn');
             for(c in coreSkills) coreSkills[c].animate({opacity: 1}, DISP_TIME, 'easeIn');
             bigRed.stop().animate(bigRedAttrs, DISP_TIME, 'easeIn');
             activeBubble.stop().animate({path: activeBubble.cpath, 'stroke-width': 1.5}, DISP_TIME, 'easeIn');
@@ -183,16 +250,37 @@ window.onload = function () {
      * FUNCTION DEFINITIONS
      */
 
+    function destroyPElements() {
+        for(p in pElements) {
+            if(p == 'story'){
+                for(s in pElements[p]) {
+                    pElements[p][s].remove();
+                }
+            } else {
+                pElements[p].remove();
+            }
+        }
+    }
+
     function makeBubble(p, x){
         bubbles[p['name']] = makeCircle(x, bigRed.y, 10, bubbleAttrs);
+        bubbleLabels[p['name']] = r.text(x, bigRed.y - 25, p['name']).attr({'fill': WHITE, 'font-family': 'mido', 'font-size': 14});
         bubbles[p['name']].drawV = p['drawV'];
         bubbles[p['name']].designV = p['designV'];
         bubbles[p['name']].buildV = p['buildV'];
         bubbles[p['name']].engageV = p['engageV'];
     }
 
+    function setPicBackground(p){
+        bubbles[p['name']].attr({'fill': 'url(img/' + p['name'] + '.png)'});
+    }
+
     function selectProject() {
         if(activeState == 'home') {
+            for(b in bubbles) {
+                if(b != this.pname) bubbles[b].animate({'opacity': 0}, DISP_TIME, 'easeIn');
+            }
+            for(bl in bubbleLabels) bubbleLabels[bl].animate({'opacity': 0}, DISP_TIME, 'easeIn');
             activeState = 'toProject';
             activeBubble = this;
             this.toFront();
@@ -202,6 +290,17 @@ window.onload = function () {
             for(c in coreSkills) coreSkills[c].animate({opacity: 0}, DISP_TIME, 'easeIn');
             bigRed.animate({opacity: 0}, DISP_TIME, 'easeIn');
             this.stop().animate({path: panelPath( 8, 25, svgWidth - 20, svgHeight - 50, 6, 6)}, DISP_TIME, 'easeIn');
+        }
+    }
+
+    function createAboutMe() {
+        mElements['philosophy-title'] = r.text(300, 180, 'Design Philosophy').attr(titleAttrs).attr({'fill': '#333', 'opacity': 0});
+        mElements['design-philosophy'] = r.text(300, 300, designPhilosophy).attr(textAttrs).attr({'fill': '#333', 'opacity': 0});
+        mElements['dp-nav'] = r.text(100, 200, 'Design Philosophy').attr(textAttrs).attr({'fill': '#333', 'opacity': 0});
+
+        mElements['design-philosophy'].animate({opacity: 1}, DISP_TIME, 'easeIn');   
+        for(m in mElements) {
+            mElements[m].animate({opacity: 1}, DISP_TIME, 'easeIn');   
         }
     }
 
@@ -215,7 +314,25 @@ window.onload = function () {
         if(imgWidth + imgX + 340 > svgWidth) {
             imgX = 30;
         } else {
-            // Make bubbles here
+            var valAttrs = {
+                'font-family': 'mido',
+                'font-size': 12,
+                'fill': '#fff',
+                'cursor': 'default'};
+            var valCircleAttrs = {
+                'fill': RED,
+                'opacity': .65,
+                'stroke': DARKRED,
+                'stroke-width': 1.5
+            };
+            pElements['drawVC'] = r.path(circlePath(54, svgHeight/5, 5 + 35*project['drawV'])).attr(valCircleAttrs);
+            pElements['drawVT'] = r.text(54, svgHeight/5 - 15 - 35*project['drawV'], 'Draw').attr(valAttrs);
+            pElements['designVC'] = r.path(circlePath(54, 2*svgHeight/5, 5 + 35*project['designV'])).attr(valCircleAttrs);
+            pElements['designVT'] = r.text(54, 2*svgHeight/5 - 17 - 35*project['designV'], 'Design').attr(valAttrs);
+            pElements['buildVC'] = r.path(circlePath(54, 3*svgHeight/5, 5 + 35*project['buildV'])).attr(valCircleAttrs);
+            pElements['buildVT'] = r.text(54, 3*svgHeight/5 - 15 - 35*project['buildV'], 'Build').attr(valAttrs);
+            pElements['engageVC'] = r.path(circlePath(54, 4*svgHeight/5, 5 + 35*project['engageV'])).attr(valCircleAttrs);
+            pElements['engageVT'] = r.text(54, 4*svgHeight/5 - 17 - 35*project['engageV'], 'Engage').attr(valAttrs);
 
         }
 
@@ -230,22 +347,7 @@ window.onload = function () {
 
         pElements['img'] = r.image('img/' + project['title'].replace(/\s+/g, '-').toLowerCase() + '0.png', imgX, imgY, imgWidth, imgHeight);
 
-        var textAttr = {
-            'font-family': 'Roboto Condensed',
-            'text-anchor': 'start',
-            'fill': GRAYBLUE,
-            'cursor': 'default'
-        };
-
-        var titleAttr = {
-            'font-family': 'mido',
-            'text-anchor': 'start',
-            'fill': '#fff',
-            'cursor': 'default'
-        };
-
         var maxWidth = svgWidth - imgX - imgWidth - margin - 15;
-        
         var fontSize = 30;
         var txtX = imgX + imgWidth + margin;
 
@@ -253,28 +355,26 @@ window.onload = function () {
             var i;
             var story;
             var storyWidth;
-            story = r.text(txtX, 0, project['title']).attr(titleAttr).attr({'font-size': fontSize});
+            story = r.text(txtX, 0, project['title']).attr(titleAttrs).attr({'font-size': fontSize});
             storyWidth = story.getBBox()['width'];
             story.remove();
             if(storyWidth > maxWidth) fontSize -= 1;
             else break;
         }
 
-        pElements['title'] = r.text(imgX + imgWidth + margin, 85, project['title']).attr(titleAttr).attr({'font-size': fontSize});
+        pElements['title'] = r.text(imgX + imgWidth + margin, 85, project['title']).attr(titleAttrs).attr({'font-size': fontSize});
 
         var maxHeight = svgHeight - pElements['title'].getBBox()['y2'] - 105;
         fontSize = 22;
 
         // Calculate correct layouts
         while(true) {
-
             var i;
             var story;
             var storyWidth;
-            
             var toth = 0;
             for(i = 0; i < project['story'].length; i++) {
-                story = r.text(txtX, 0, project['story'][i]).attr(textAttr).attr({'font-size': fontSize});
+                story = r.text(txtX, 0, project['story'][i]).attr(textAttrs).attr({'font-size': fontSize});
                 storyWidth = story.getBBox()['width'];
                 toth += story.getBBox()['height'];
                 story.remove();
@@ -290,11 +390,10 @@ window.onload = function () {
 
         // Actually draw text
         var txtY = pElements['title'].getBBox()['y2'] + Math.min(50, 20 + (maxHeight - toth) / i);
-
         var txtM = Math.min(100, maxHeight / i);
         for(i = 0; i < project['story'].length; i++) {
                 pElements['story'][i] = r.text(txtX, txtY, 
-                project['story'][i]).attr(textAttr).attr({'font-size': fontSize}).hover(function () {
+                project['story'][i]).attr(textAttrs).attr({'font-size': fontSize}).hover(function () {
                     if(activeState == 'project') {
                         pElements['img'].attr({
                             'src': 'img/' + pElements['title']['attrs']['text'].replace(/\s+/g, '-').toLowerCase() + pElements['story'].indexOf(this) + '.png'
@@ -341,7 +440,6 @@ window.onload = function () {
         var p = circlePath(x, y, rad);
         var circle = r.path(p).attr(a);
         circle.cpath = p;
-
         circle.y = y;
         return circle;
     }
@@ -415,7 +513,9 @@ window.onload = function () {
             r += bubbles[b].buildV * buildF;
             r += bubbles[b].engageV * engageF;
             bubbles[b].animate({path: circlePath(bubbles[b]['attrs']['path'][0][1], my, r)}, time, ease);
+            bubbleLabels[b].animate({'x': bubbles[b]['attrs']['path'][0][1], 'y': my - r - 12}, time, ease);
         }
+
     }
     document.onmousemove = followMouse;
 
