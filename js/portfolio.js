@@ -64,13 +64,13 @@ window.onload = function () {
      var projects = {
         'Pulley Chair': {
             'name': 'Pulley Chair',
-            'title': 'Alternative Student Breaks',
+            'title': 'Pulley Chair',
             'story': [
-                'Through Northwestern Alternative Student Breaks,\nI volunteered at Habitat for Humanity in Mississippi.',
-                'I wanted to get more involved and I saw that\n the group needed help with their website.',
-                'I was appointed to be the ASB Publicity Coordinator\nand started working out usable code.',
-                'I even practiced some graphic design. It was a\ncreative outlet for a cause that mattered to me.',
-                'Of course nothing compared to getting on the road\nagain; this time leading a trip for new freshmen\nto a school for children with autism in Pittsburgh.'
+                'Our engineering team was presented with a design challenge\nfrom a research doctor studying the muscles of stroke survivors\nat the Rehabilitation Institute of Chicago.',
+                'How do you keep people safe while perturbing their upper\nbody with a pulley system?',
+                'Our first sideways rocking chair prototype worked the\ncorrect muscles, but users expressed a need for comfort.',
+                'Our final product addressed that need with padded siding,\na footrest, and a wider rocker arc.',
+                'Our team\'s design poster won first place for communication.'
             ],
             'drawV': .2,
             'designV': .3,
@@ -194,7 +194,8 @@ window.onload = function () {
     coreSkills['Engage'] = r.text(bigRed['attrs']['path'][0][1], 4 * svgHeight / 5, 'engage').attr(coreSkillsAttr);
 
     var myPanel = r.rect(0, svgHeight, svgWidth, svgHeight - 60).attr({
-        'fill': 'url(img/first_aid_kit.png)'
+        'fill': 'url(img/first_aid_kit.png)',
+        'stroke-width': 0
     });
 
  
