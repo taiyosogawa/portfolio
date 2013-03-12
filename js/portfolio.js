@@ -1,4 +1,20 @@
 window.onload = function () {
+    var imageURLs = [
+        'img/design-philosophy.png',
+        'img/ajax-loader.gif',
+        'img/resume-icon.png',
+        'img/email-icon.png',
+        'img/linkedin-icon.png',
+        'img/github-icon.png'
+    ];
+
+    for(p in projects) {
+        for (var i = 0; i < 5; i++) {
+            imageURLs.push('img/' + projects[p]['title'].replace(/\s+/g, '-').toLowerCase() + i.toString() + '.png');
+        }
+    }
+    
+    preloadImages(imageURLs);
     /*
      * CONSTANTS
      */
@@ -167,7 +183,7 @@ window.onload = function () {
         'stroke-width': 0
         });
     var name = r.image('img/name.png', svgWidth - 307, svgHeight - 64, 290, 50).attr({'cursor': 'pointer'});
-
+    var arrows = []
     /*
      * CODE
      */ 
@@ -227,7 +243,32 @@ window.onload = function () {
     });
 
     bubbleFollow(svgHeight / 5, DISP_TIME, 'easeIn');
-    window.setTimeout(function () {activeState = 'home';}, DISP_TIME);
+
+    arrows['big-red'] = r.image('img/up-down-arrow.png', 20, svgHeight / 5 - 27, 30, 70).attr({'opacity': 0});
+    arrows['project'] = r.image('img/up-arrow.png', plusX - 20, svgHeight / 5 + 10, 50, 68).attr({'opacity': 0});
+    arrows['name'] = r.image('img/name-arrow.png', svgWidth - 355, svgHeight - 74, 50, 50).attr({'opacity': 0});
+    window.setTimeout(function () {
+        var t = DISP_TIME;
+        var o1 = {'opacity': 1};
+        var o0 = {'opacity': 0};
+        var e = 'easeIn';
+
+
+        arrows['big-red'].animate(o1, t, e, function () {
+            arrows['big-red'].animate(o0, t, e, function () {
+                arrows['project'].animate(o1, t, e, function () {
+                    arrows['project'].animate(o0, t, e, function () {
+                        arrows['name'].animate(o1, t, e, function () {
+                            arrows['name'].animate(o0, t, e, function () {
+                                activeState = 'home';
+                            });
+                        });
+                    });
+                });
+            });
+        });
+
+    }, DISP_TIME);
 
     $(window).resize(resizeElements);
 
@@ -531,7 +572,6 @@ window.onload = function () {
         activeState = 'toHome';
         window.setTimeout(function() {
             activeState = 'home';
-            resizeElements();
         }, DISP_TIME);
     }
 
@@ -580,25 +620,6 @@ window.onload = function () {
             preloadImages.list.push(img);
         }
     }
-
-    var imageURLs = [
-        'img/design-philosophy.png',
-        'img/ajax-loader.gif',
-        'img/resume-icon.png',
-        'img/email-icon.png',
-        'img/linkedin-icon.png',
-        'img/github-icon.png'
-    ];
-
-    for(p in projects) {
-        for (var i = 0; i < 5; i++) {
-            imageURLs.push('img/' + projects[p]['title'].replace(/\s+/g, '-').toLowerCase() + i.toString() + '.png');
-        }
-    }
-    
-    preloadImages(imageURLs);
-
-
 
 };
 
