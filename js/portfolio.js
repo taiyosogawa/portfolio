@@ -1,10 +1,4 @@
 window.onload = function () {
-        $('#email-iframe').fancybox({
-            'width':500,
-            'height':500,
-            'type':'iframe',
-            'autoScale':'false'
-        });
     /*
      * CONSTANTS
      */
@@ -15,10 +9,9 @@ window.onload = function () {
     var DARKRED = '#900000';
     var GRAYBLUE = '#7bb';
     var DARKBLUE = '#2f6e70';
-    var svgWidth = Math.max(window.innerWidth, screen.width - 400);
+    var svgWidth = window.innerWidth;
     var svgHeight = window.innerHeight;
-    if(svgWidth < svgHeight * 1.8) svgHeight = svgWidth / 1.8;
-    var r = Raphael('container-div', svgWidth, svgHeight);
+    var r = Raphael('container-div', screen.innerHeight, screen.innerWidth);
     var bubbles = {};
     var bubbleLabels = {};
     var pElements = {};
@@ -168,8 +161,12 @@ window.onload = function () {
     var pElements = {
         'story': []
     };
-
     var bigRed = makeCircle(100, -50, 70, bigRedAttrs);
+    var myPanel = r.rect(0, svgHeight, svgWidth, svgHeight - 60).attr({
+        'fill': 'url(img/first_aid_kit.png)',
+        'stroke-width': 0
+        });
+    var name = r.image('img/name.png', svgWidth - 307, svgHeight - 64, 290, 50).attr({'cursor': 'pointer'});
 
     /*
      * CODE
@@ -198,15 +195,7 @@ window.onload = function () {
     coreSkills['Design'] = r.text(bigRed['attrs']['path'][0][1], 2 * svgHeight / 5, 'design').attr(coreSkillsAttr);
     coreSkills['Build'] = r.text(bigRed['attrs']['path'][0][1], 3 * svgHeight / 5, 'build').attr(coreSkillsAttr);
     coreSkills['Engage'] = r.text(bigRed['attrs']['path'][0][1], 4 * svgHeight / 5, 'engage').attr(coreSkillsAttr);
-
-    var myPanel = r.rect(0, svgHeight, svgWidth, svgHeight - 60).attr({
-        'fill': 'url(img/first_aid_kit.png)',
-        'stroke-width': 0
-    });
-
- 
-
-    var name = r.image('img/name.png', svgWidth - 307, svgHeight - 64, 290, 50).attr({'cursor': 'pointer'});
+    
     name.click(function () {
         if(activeState == 'home') {
             activeState = 'aboutMe';
@@ -239,9 +228,54 @@ window.onload = function () {
 
     bubbleFollow(svgHeight / 5, DISP_TIME, 'easeIn');
     window.setTimeout(function () {activeState = 'home';}, DISP_TIME);
+
+    $(window).resize(resizeElements);
+
     /*
      * FUNCTION DEFINITIONS
      */
+
+
+    function resizeElements () {
+        svgWidth = window.innerWidth;
+        svgHeight = window.innerHeight;
+        r.setSize(window.innerWidth, window.innerHeight);
+        if(activeState  == 'project') {
+            myPanel.attr({'x': 0, 'y': svgHeight, 'width': svgWidth, 'height': svgHeight - 60});
+        } else {
+            var i = 1;
+            for(c in coreSkills) {
+                coreSkills[c].attr({'y': i * svgHeight / 5});
+                i++;
+            }
+            bubbleFollow(svgHeight / 5, DISP_TIME / 3, 'easeIn');
+
+
+            if(activeState == 'aboutMe') {
+                var imgWidth = svgWidth - 200;
+                var imgHeight = svgWidth * 900 / 3283;
+                if (imgHeight > svgHeight - 240) {
+                    imgHeight = svgHeight - 240;
+                    imgWidth = imgHeight * 3283 / 900;
+                }
+
+                mElements['design-philosophy'].attr({'x': 100 , 'y': (svgHeight - (imgHeight + 60)) / 2, 'height': imgHeight, 'width': imgWidth}); 
+                mElements['resume-icon'].attr({'x': 4 * svgWidth / 11 - 30, 'y': svgHeight - 70});
+                mElements['email-icon'].attr({'x': 5 * svgWidth / 11 - 30, 'y': svgHeight - 70});
+                mElements['linkedin-icon'].attr({'x': 6 * svgWidth / 11 - 30, 'y': svgHeight - 70});
+                mElements['github-icon'].attr({'x': 7 * svgWidth / 11 - 30, 'y': svgHeight - 70});
+
+                name.attr({'x': svgWidth - 307, 'y': 10});
+                myPanel.attr({'x': 0, 'y': 64, 'width': svgWidth, 'height': svgHeight - 60});
+                
+            }
+            else {
+                name.attr({'x': svgWidth - 307, 'y': svgHeight - 64});
+                myPanel.attr({'x': 0, 'y': svgHeight, 'width': svgWidth, 'height': svgHeight - 60});
+            }
+        }
+
+    }
 
     function destroyPElements() {
         for(p in pElements) {
@@ -292,7 +326,7 @@ window.onload = function () {
         var imgHeight = svgWidth * 900 / 3283;
         if (imgHeight > svgHeight - 240) {
             imgHeight = svgHeight - 240;
-            svgWidth = svgHeight * 3283 / 900;
+            imgWidth = imgHeight * 3283 / 900;
         }
         mElements['design-philosophy'] = r.image('img/design-philosophy.png', 100, (svgHeight - (imgHeight + 60)) / 2, imgWidth, imgHeight).attr({'opacity': 0});
         mElements['resume-icon'] = r.image('img/resume-icon.png', 4 * svgWidth / 11 - 30, svgHeight - 70, 60, 60).attr(iconAttrs);
@@ -495,23 +529,26 @@ window.onload = function () {
 
     function changeToHome() {
         activeState = 'toHome';
-        window.setTimeout(function() {activeState = 'home';}, DISP_TIME);
+        window.setTimeout(function() {
+            activeState = 'home';
+            resizeElements();
+        }, DISP_TIME);
     }
 
     function mouseX(evt) {if (!evt) evt = window.event; if (evt.pageX) return evt.pageX; else if (evt.clientX)return evt.clientX + (document.documentElement.scrollLeft ?  document.documentElement.scrollLeft : document.body.scrollLeft); else return 0;}
     function mouseY(evt) {if (!evt) evt = window.event; if (evt.pageY) return evt.pageY; else if (evt.clientY)return evt.clientY + (document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop); else return 0;}
 
-    function followMouse(evt) {
+    $('svg').mousemove(function (event) {
         if ((Math.random() > .7) && (activeState == 'home')) {
-            var my = mouseY(evt);
-            var mx = mouseX(evt);
+            var my = event.pageY;
+            var mx = event.pageX;
             if (mx < 150) {
                 bubbleFollow(my, 250, 'easeOut');
             } else if (mx < 200) {
                 bubbleFollow(my, mx + 100, 'easeOut');
             }
         }
-    }
+    });
 
     function bubbleFollow(my, time, ease) {
         bigRed.stop().animate({path: circlePath(bigRed['attrs']['path'][0][1], my, 70)}, time, ease);
@@ -532,7 +569,6 @@ window.onload = function () {
         }
 
     }
-    document.onmousemove = followMouse;
 
     function preloadImages(array) {
         if (!preloadImages.list) {
@@ -544,8 +580,6 @@ window.onload = function () {
             preloadImages.list.push(img);
         }
     }
-
-
 
     var imageURLs = [
         'img/design-philosophy.png',
