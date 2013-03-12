@@ -1,4 +1,10 @@
 window.onload = function () {
+        $('#email-iframe').fancybox({
+            'width':500,
+            'height':500,
+            'type':'iframe',
+            'autoScale':'false'
+        });
     /*
      * CONSTANTS
      */
@@ -66,11 +72,11 @@ window.onload = function () {
             'name': 'Pulley Chair',
             'title': 'Pulley Chair',
             'story': [
-                'Our engineering team was presented with a design challenge\nfrom a research doctor studying the muscles of stroke survivors\nat the Rehabilitation Institute of Chicago.',
-                'How do you keep people safe while perturbing their upper\nbody with a pulley system?',
-                'Our first sideways rocking chair prototype worked the\ncorrect muscles, but users expressed a need for comfort.',
-                'Our final product addressed that need with padded siding,\na footrest, and a wider rocker arc.',
-                'Our team\'s design poster won first place for communication.'
+                'Our engineering team was presented with a design\nchallenge from a research doctor studying the muscles of\nstroke survivors at the Rehabilitation Institute of Chicago.',
+                'How do you keep people safe while perturbing their\nupper body with a pulley system?',
+                'We built a sideways rocking chair prototype that worked\nthe correct muscles, but users expressed a need for\ngreater sense of comfort and security.',
+                'The final product addressed that need with padded siding,\na footrest, and a wider rocker arc.',
+                'Our team\'s presentation of the problem statement earned\nus an award for effective communication.'
             ],
             'drawV': .2,
             'designV': .3,
@@ -82,9 +88,9 @@ window.onload = function () {
             'name': 'WildCloud',
             'title': 'WildCloud Classroom Software',
             'story': [
-                'Our team noticed that instructors often struggle to get\nhonest, useful feedback in a large class.',
+                'Our team noticed that instructors often struggle to\nget honest, useful feedback in a large class.',
                 'We began prototyping interfaces that would facilitate\nreal-time communication in a classroom setting.',
-                'User testing showed flaws in our system. Users had no\nway of deleting classes they had mistakenly joined.',
+                'Testing showed flaws in our workflow. Users had no\nway of deleting classes they had mistakenly joined.',
                 'We got some of the website functionality right...',
                 'But through this experience, I learned about the\nimportance of robust web design across browsers.'
             ],
@@ -98,10 +104,10 @@ window.onload = function () {
             'name': 'Nomad',
             'title': 'Nomad',
             'story': [
-                'A team of engineers and MBAs, we saw a technology\nneed among food trucks as a business opportunity for us.',
-                'The truck owner\'s workflow revealed that their IT was\ncumbersome and outdated.',
-                'We also found that the food truck industry was growing.\nIt was the market for us.',
-                'Based on observations, we explored every user sequence\nat the chalkboard.',
+                'A team of engineers and MBAs, we saw a technology\nneed among food trucks as a design opportunity for us.',
+                'User interviews showed that truck owners\' sales\ntracking was cumbersome and they had trouble\ncommunicating their location to customers.',
+                'Based on observations, we explored user sequences\nfor recording sales and location on a smartphone.',
+                'The final product featured an integrated sales\nanalytics and social media solution.',
                 'My contribution was building the website with PHP,\njQuery, and OAuth. A step up from my WildCloud project.'
             ],
             'drawV': .1,
@@ -116,7 +122,7 @@ window.onload = function () {
             'story': [
                 'For an industrial design project, I was looking for\na way to make the bus stop a desireable place to be.',
                 'A meditative enclosing could be relaxing, but you\ndon\'t know who you might meet inside.',
-                'The design evolved to capitalize on its\nsurroundings rather than closing them off.',
+                'The design evolved to capitalize on its outdoor\nsurroundings rather than closing them off.',
                 'It eventually became a self sustained ecosphere,\npowering its own display and collecting water and\ncompost for its plants.',
                 'A display of concerted environmental efforts\nwould involve the entire community.'
             ],
@@ -133,8 +139,8 @@ window.onload = function () {
                 'Through Northwestern Alternative Student Breaks, I\nvolunteered at Habitat for Humanity in Mississippi.',
                 'I wanted to get more involved and saw that the group\nneeded help with their website.',
                 'I was appointed to be the ASB Publicity Coordinator\nand started working out usable code.',
-                'I even practiced some graphic design. It was a creative\noutlet for a cause that mattered to me.',
-                'Of course nothing compared to getting on the road again;\nthis time leading a trip for new freshmen to a school for\nchildren with autism in Pittsburgh.'
+                'I even practiced some graphic design. It was a\ncreative outlet for a cause that mattered to me.',
+                'Of course nothing compared to getting on the road\nagain; this time leading a trip for new freshmen to a\nschool for children with autism in Pittsburgh.'
             ],
             'drawV': .2,
             'designV': 0,
@@ -146,11 +152,11 @@ window.onload = function () {
             'name': 'Brad Box',
             'title': 'Brad Box',
             'story': [
-                'Brad, a man who has no motor control beneath the neck and uses\nsynthesized speech, needed a better way to make phone calls.',
-                'Before designing anything, our team tried to imagine ourselves\nin his shoes by sketchin and playing out user scenarios',
-                'Through research and experimentation, I devised a software and\nhardware setup that enables Brad to control an Android phone.',
-                'The integrated system was tested so that Brad\'s system would\nbe robust in many contexts',
-                'I\'m looking forward to handing it off to Brad!'
+                'Brad, a man who has no motor control beneath the\nneck and uses a synthesized speech device, needed\na better way to make phone calls.',
+                'Before designing anything, our team tried to imagine\nourselves in his shoes by sketching user scenarios.',
+                'Through research and experimentation, I devised a\nsoftware and hardware setup that enables Brad to\ncontrol an Android phone.',
+                'The integrated system was tested so that Brad\'s\nsystem would be robust in many contexts.',
+                'The final product provided a clean interface\ncompatible with a range of Android phone models.'
             ],
             'drawV': .1,
             'designV': .3,
@@ -199,14 +205,6 @@ window.onload = function () {
     });
 
  
- /*
-    var navRibbonPath = 'M 30 ' + (-.95 * svgHeight) + ' h 120 v ' + (.95 * svgHeight) + ' l -60 -60 l -60 60 v ' + (-.95 * svgHeight);
-
-    var navRibbon = r.path(navRibbonPath).attr({
-        'fill': 'url(img/ribbon.png)',
-        'stroke': WHITE
-    })
-*/
 
     var name = r.image('img/name.png', svgWidth - 307, svgHeight - 64, 290, 50).attr({'cursor': 'pointer'});
     name.click(function () {
@@ -215,11 +213,9 @@ window.onload = function () {
             for(b in bubbles) bubbles[b].animate({'opacity': 0}, DISP_TIME, 'easeIn');
             for(bl in bubbleLabels) bubbleLabels[bl].animate({'opacity': 0}, DISP_TIME, 'easeIn');
             myPanel.toFront();
-            //navRibbon.toFront();
             bigRed.stop().animate({'opacity': 0}, DISP_TIME, 'easeIn');
             this.stop().animate({'y': 10}, DISP_TIME + 200, 'bounce', createAboutMe);
             myPanel.stop().animate({'y': 64}, DISP_TIME + 200, 'bounce');
-            //navRibbonPath = 'M 30 -1 h 120 v ' + (.95 * svgHeight) + ' l -60 -60 l -60 60 v ' + (-.95 * svgHeight);
         } else if(activeState == 'aboutMe') {
             changeToHome();
             destroyPElements();
@@ -229,7 +225,6 @@ window.onload = function () {
             bigRed.stop().animate(bigRedAttrs, DISP_TIME, 'easeIn');
             this.stop().animate({'y': svgHeight - 64}, DISP_TIME, 'bounce');
             myPanel.stop().animate({'y': svgHeight}, DISP_TIME, 'bounce');
-            //navRibbonPath = 'M 30 ' + (-.95 * svgHeight) + ' h 120 v ' + (.95 * svgHeight) + ' l -60 -60 l -60 60 v ' + (-.95 * svgHeight);
         } else if(activeState == 'project') {
             changeToHome();
             destroyPElements();
@@ -240,7 +235,6 @@ window.onload = function () {
             activeBubble.stop().animate({path: activeBubble.cpath, 'stroke-width': 1.5}, DISP_TIME, 'easeIn');
             activeBubble.attr({'cursor': 'pointer'});
         }
-        //navRibbon.animate({'path': navRibbonPath}, DISP_TIME, 'easeOut');
     });
 
     bubbleFollow(svgHeight / 5, DISP_TIME, 'easeIn');
@@ -310,6 +304,17 @@ window.onload = function () {
         mElements['linkedin-icon'].click(function(){window.open('http://linkedin.com/in/taiyosogawa');});
         mElements['github-icon'].click(function(){window.open('https://github.com/taiyosogawa');});
 
+        mElements['email-icon'].click(function () {
+            $.fancybox({
+                'width':500,
+                'height':530,
+                type: 'iframe',
+                href: 'email.php'
+            });
+            $('#fancybox-content').prepend('<img id="loading-gif" style="margin: 50%" src="img/ajax-loader.gif">');
+
+        });
+
         mElements['design-philosophy'].animate({opacity: 1}, DISP_TIME/2, 'easeIn');   
         for(m in mElements) {
             mElements[m].animate({opacity: 1}, DISP_TIME, 'easeIn');   
@@ -376,8 +381,8 @@ window.onload = function () {
 
         pElements['title'] = r.text(imgX + imgWidth + margin, 85, project['title']).attr(titleAttrs).attr({'font-size': fontSize});
 
-        var maxHeight = svgHeight - pElements['title'].getBBox()['y2'] - 105;
-        fontSize = 22;
+        var maxHeight = svgHeight - pElements['title'].getBBox()['y2'] - 100;
+        fontSize = 20;
 
         // Calculate correct layouts
         while(true) {
@@ -390,7 +395,7 @@ window.onload = function () {
                 storyWidth = story.getBBox()['width'];
                 toth += story.getBBox()['height'];
                 story.remove();
-                if(storyWidth > maxWidth) {
+                if(storyWidth > maxWidth - 50) {
                     fontSize -= 1;
                     break;
                 }
@@ -483,9 +488,7 @@ window.onload = function () {
         string += 'a '+r+','+r+' 0 0,1 -'+r+','+r;
         string += 'h -285 l -50 50';
         string += 'h -' + (w-335);
-        //string += 'a '+r+','+r+' 0 0,1 -'+r+',-'+r;
         string += 'v -'+h;
-        //string += 'a '+r+','+r+' 0 0,1 '+r+',-'+r;
         string += 'z';
         return string;
     }
@@ -542,25 +545,25 @@ window.onload = function () {
         }
     }
 
+
+
     var imageURLs = [
-        'img/bus-stop0.png',
-        'img/bus-stop1.png',
-        'img/bus-stop2.png',
-        'img/bus-stop3.png',
-        'img/bus-stop4.png',
-        'img/nomad0.png',
-        'img/nomad1.png',
-        'img/nomad2.png',
-        'img/nomad3.png',
-        'img/nomad4.png',
-        'img/alternative-student-breaks0.png',
-        'img/alternative-student-breaks1.png',
-        'img/alternative-student-breaks2.png',
-        'img/alternative-student-breaks3.png',
-        'img/alternative-student-breaks4.png'
+        'img/design-philosophy.png',
+        'img/ajax-loader.gif',
+        'img/resume-icon.png',
+        'img/email-icon.png',
+        'img/linkedin-icon.png',
+        'img/github-icon.png'
     ];
 
+    for(p in projects) {
+        for (var i = 0; i < 5; i++) {
+            imageURLs.push('img/' + projects[p]['title'].replace(/\s+/g, '-').toLowerCase() + i.toString() + '.png');
+        }
+    }
+    
     preloadImages(imageURLs);
+
 
 
 };
@@ -568,15 +571,8 @@ window.onload = function () {
 
 /*
     TODO
-    -Dynamically size Title
-    -Have story points align correctly horizontally
-    -Have story points align correctly vertically
     -Have SVG scale correctly to window size -- have scroll bars appear if necessary. Don't have svg exceed the screen size (unless window size exceeds screen size)
-    -Design philosophy jumps up when clicking on name
-    -An easier way to transition from project back to the main screen 
-    -Labels for each project
-    -LinkedIn, GitHub links
-    -
+
 
 
     Consider having onmousemove update a variable and create an infinite loop that checks that variable!!

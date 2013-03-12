@@ -23,12 +23,11 @@ html, body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
-	font-family: 'oxygen';
 	font-size: 18px
 }
 
 body {
-	background-color: #222;
+	overflow: hidden;
 }
 
 canvas {
@@ -45,5 +44,38 @@ svg {
 	height: 100%;
 	display: block;
 	overflow: hidden;
+	background-color: #222;
+}
+
+#success-message {
+	margin-right: auto;
+	margin-left: auto;
+	margin-top: 200px;
+	font-family: "Roboto Condensed";
+	color: #555;
+}
+
+#main-div {
+	font-family: "Roboto Condensed";
+	color: #555;
+	max-width: 500px;
+	padding: 0 65px 0 50px;
+}
+
+#submit-button {
+	font-family: "Roboto Condensed";
+	font-size: 16px;
+	color: #fff;
+	max-width: 100px;
+}
+
+#field-missing-message {
+	color: #b22222;
+	margin-bottom: 10px;
+}
+
+input[type="text"] {
+	font-family: "Roboto Condensed";
+    height: 29px;
 }
 
