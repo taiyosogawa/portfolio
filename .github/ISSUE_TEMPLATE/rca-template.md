@@ -1,7 +1,7 @@
 ---
 name: RCA Template
 about: Root Cause Analysis for service outages
-title: 'RCA: {Title}'
+title: 'RCA: [TITLE]'
 labels: rca
 assignees: ''
 
